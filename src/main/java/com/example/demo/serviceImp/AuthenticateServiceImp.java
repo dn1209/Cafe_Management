@@ -32,6 +32,17 @@ public class AuthenticateServiceImp implements AuthenticateService {
             }
             return storeId.get();
         }
-        return 1L;
+        return null;
+    }
+
+    @Override
+    public Long getUserIdByToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            String token = bearerToken.substring(7); // Bỏ phần "Bearer " từ token
+            Long userId = jwtTokenProvider.getUserIdFromJWT(token);
+            return userId;
+        }
+        return null;
     }
 }

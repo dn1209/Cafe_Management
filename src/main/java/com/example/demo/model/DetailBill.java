@@ -31,10 +31,6 @@ public class DetailBill {
     @Column(name = "price", columnDefinition = "numeric(15, 0)")
     private BigDecimal price;
 
-    @Column(name = "discount")
-    private int discount;
-
-    @ManyToOne
-    @JoinColumn(name = "bill_id")
-    private Bill bill;
+    @Column(name = "bill_id")
+    private Long billId;
 }

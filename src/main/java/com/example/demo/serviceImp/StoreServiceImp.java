@@ -32,11 +32,10 @@ public class StoreServiceImp implements StoreService {
             saveStore(userName);
         }
         System.out.println("tiep tuc");
-        Optional<Store> storeOptional = storeRepository.findStoreByUserName(userName);
-        if( storeOptional.isEmpty()){
+        Store store = storeRepository.findStoreByUserName(userName);
+        if( store == null){
             throw new UserNotFoundException("Store not found with username: " + userName);
         }
-        Store store = storeOptional.get();
         return store;
     }
 

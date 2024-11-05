@@ -14,7 +14,7 @@ public interface StoreRepository extends JpaRepository<Store,Long> {
 //false neu da ton tai va true neu chua ton tai
 
     @Query("SELECT u FROM Store u WHERE u.storeName = ?1")
-    Optional<Store> findStoreByUserName(String userName);
+    Store findStoreByUserName(String userName);
     @Query("SELECT u FROM Store u WHERE u.storeId = ?1")
     Optional<Store> findStoreById(Long userName);
 }

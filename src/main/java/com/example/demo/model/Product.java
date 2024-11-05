@@ -20,7 +20,7 @@ public class Product {
             generator = "product_sequence"
     )
     @Column(name = "product_id")
-    private long productId;
+    private Long productId;
 
     @Column(name = "product_cd")
     private String productCd;
@@ -28,21 +28,20 @@ public class Product {
     @Column(name = "product_name")
     private String productName;
 
-    @Column(name = "product_sls")
-    private int productSls;
-
     @Column(name = "prd_sell_price", columnDefinition = "numeric(15, 0)")
     private BigDecimal prdSellPrice;
 
     @Column(name = "prd_origin_price", columnDefinition = "numeric(15, 0)")
     private BigDecimal prdOriginalPrice;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id") // Tên cột khóa ngoại trong bảng Product
-    private Category category;
-    @ManyToOne
-    @JoinColumn(name = "store_id")
-    private Store store;
+    @Column(name = "category_id")
+    private Long categoryId;
+
+    @Column(name = "note")
+    private String note;
+
+    @Column(name = "store_id")
+    private Long storeId;
 
     @Column(name = "prd_status")
     private int prdStatus;

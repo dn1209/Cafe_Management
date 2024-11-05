@@ -48,9 +48,11 @@ public class User {
     @Column(name = "updated_at")
     private LocalDate updatedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "store_id")
-    private Store store;
+    @Column(name = "user_role")
+    private Short userRole;
+
+    @Column(name = "store_id")
+    private Long storeId;
 
     @Column(name = "logined")
     private LocalDate logined;
@@ -82,7 +84,7 @@ public class User {
                 String userStatus,
                 LocalDate createdAt,
                 LocalDate updatedAt,
-                Store store,
+                Long storeId,
                 LocalDate logined) {
         this.userName = userName;
         this.password = password;
@@ -90,8 +92,10 @@ public class User {
         this.userStatus = userStatus;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
-        this.store = store;
+        this.storeId = storeId;
         this.logined = logined;
 
     }
+
+
 }

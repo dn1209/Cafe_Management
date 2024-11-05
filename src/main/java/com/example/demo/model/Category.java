@@ -20,7 +20,7 @@ public class Category {
             generator = "category_sequence"
     )
     @Column(name = "category_id")
-    private long categoryId;
+    private Long categoryId;
 
     @Column(name = "category_name")
     private String categoryName;
@@ -28,17 +28,11 @@ public class Category {
     @Column(name = "created_date")
     private LocalDate createdDate;
 
-    @ManyToOne
-    @JoinColumn(name = "store_id")
-    private Store store;
-
-    @OneToMany(mappedBy = "category")
-    private List<Product> products;
+    @Column(name = "store_id")
+    private Long storeId;
 
     @Column(name = "status")
     private int status;
 
-    @Column(name = "store_code")
-    private int storeId;
 
 }

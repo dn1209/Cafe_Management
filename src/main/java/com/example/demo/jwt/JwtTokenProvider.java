@@ -1,7 +1,7 @@
 package com.example.demo.jwt;
 
 import com.example.demo.exception.JwtInvalidException;
-import com.example.demo.model.CustomUserDetails;
+import com.example.demo.model.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -16,14 +16,14 @@ public class JwtTokenProvider {
     private static final Key JWT_SECRET = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     private final long JWT_EXPIRATION = 1800000L;
 
-    public String generateToken(CustomUserDetails userDetails) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION);
+    public String generateToken(User userDetails) {
+//        Date now = new Date();
+//        Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION);
         // Tạo chuỗi json web token từ id của user.
         return Jwts.builder()
-                .setSubject(Long.toString(userDetails.getUser().getUserId()))
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
+                .setSubject(Long.toString(userDetails.getUserId()))
+//                .setIssuedAt(now)
+//                .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
                 .compact();
     }

@@ -5,12 +5,16 @@ import lombok.Data;
 
 @Data
 public class ProductNewRequest {
-    private String prd_name;
-    private String prd_code;
-    @NotBlank
-    private int prd_sls;
-    private int prd_origin_price;
-    private int prd_sell_price;
-    private Long category_id;
+    private String prdName;
+
+    private int prdOriginPrice;
+
+    private int prdSellPrice;
+
+    private Long categoryId;
+
+    private String note;
+
+    private int status;
 
 }

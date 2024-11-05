@@ -12,15 +12,15 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u WHERE u.userName = ?1")
-    Optional<User> findUserByUserName(String userName);
+    User findUserByUserName(String userName);
 
     @Query("SELECT u FROM User u WHERE u.userId = ?1")
-    Optional<User> findUserById(Long id);
+    User findUserById(Long id);
 
+    @Query("SELECT u FROM User u WHERE u.userName = ?1 AND u.password = ?2")
+    User findUserByUserNameAndPassword(String userName, String password);
 
-    @Query("SELECT u.store.storeName FROM User u WHERE u.userId = :userId")
-    Optional<String> findUserNameByUserId( Long userId);
-    @Query("SELECT u.store.storeId FROM User u WHERE u.userId = :userId")
+    @Query("SELECT u.storeId FROM User u WHERE u.userId = :userId")
     Optional<Long> findStoreIdByUserId( Long userId);
 
 

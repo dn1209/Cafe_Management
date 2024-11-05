@@ -1,96 +1,64 @@
 package com.example.demo.model;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
+import com.example.demo.model.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-
+import java.util.List;
 @Data
 @AllArgsConstructor
-public class CustomUserDetails implements UserDetails {
-    User user;
+public class CustomUserDetails {
+    private long userId;
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Mặc định sẽ để tất cả là ROLE_USER. Để demo cho đơn giản.
-        return Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
-    }
+    private String userName;
 
-    @Override
-    public String getPassword() {
-        return user.getPassword();
-    }
+    private String password;
 
-    @Override
-    public String getUsername() {
-        return user.getUserName();
-    }
+    private String email;
 
+    private String displayName;
 
+    private String userStatus;
 
-    public Long getId(){
-        return user.getUserId();
-    }
-    public String getEmail(){
-        return user.getEmail();
-    }
-    public String getDisplayName(){
-        return user.getDisplayName();
-    }
-    public String getUserStatus(){
-        return user.getUserStatus();
-    }
+    private LocalDate createdAt;
 
-    public Long getStoreId(){
-        return user.getStore().getStoreId();
-    }
-    public LocalDate getCreatedAt(){
-        return user.getCreatedAt();
-    }
-    public LocalDate getUpdatedAt(){
-        return user.getUpdatedAt();
+    private LocalDate updatedAt;
 
-    }
-    public LocalDate getLoginDate(){
-        return user.getLogined();
-    }
-    public int getParentId(int a){
-        return a;
-    }
-    public String getIpLogged(){
-        return "45.124.94.221";
-    }
-    public String getRecode(){
-        return "";
-    }
-    public String codeTimeOut(){
-        return "";
+    private LocalDate logined;
+
+    private String tokenLogin;
+
+    private Collection<? extends GrantedAuthority> authorities;
+
+    public static CustomUserDetails mapToStoreDetail(User user, String accessToken) {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        switch (user.getUserRole()) {
+            case 0:
+                authorities.add(new SimpleGrantedAuthority(UserRole.ADMIN.name()));
+                break;
+            case 1:
+                authorities.add(new SimpleGrantedAuthority(UserRole.USER.name()));
+                break;
+
+        }
+        return new CustomUserDetails(
+                user.getUserId(),
+                user.getUserName(),
+                user.getPassword(),
+                user.getEmail(),
+                user.getDisplayName(),
+                user.getUserStatus(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                user.getLogined(),
+                accessToken,
+                authorities
+        );
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 }

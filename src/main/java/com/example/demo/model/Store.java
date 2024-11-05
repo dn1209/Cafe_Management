@@ -25,18 +25,6 @@ public class Store {
     @Column(name = "store_name")
     private String storeName;
 
-    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
-    private List<User> users;
-
-    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
-    private List<Category> categories;
-
-    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
-    private List<Product> products;
-
-    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
-    private List<Bill> bills;
-
     public Store(){
     }
 
