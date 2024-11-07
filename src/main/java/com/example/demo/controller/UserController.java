@@ -15,6 +15,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api")
 public class UserController {
@@ -42,24 +45,9 @@ public class UserController {
 
     @GetMapping("/random")
     public ResponseEntity<?> randomStuff(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            String token = bearerToken.substring(7); // Bỏ phần "Bearer " từ token
-            boolean isValidToken = jwtTokenProvider.validateToken(token);
-
-            if (isValidToken) {
-                Long userId = jwtTokenProvider.getUserIdFromJWT(token);
-                if (userId != null) {
-                    // Xử lý userId ở đây, ví dụ: trả về userId trong ResponseEntity
-                    return ResponseEntity.ok("User ID: " + userId);
-                }
-            } else {
-                // Token không hợp lệ, trả về mã lỗi và thông điệp
-                return ResponseEntity.status(200).body("error_code: 404, message: JWT không hợp lệ");
-            }
-        }
-        return ResponseEntity.ok("loi");
-
+       List<String> list = new ArrayList<>();
+       list.add("test");
+       list.add("test2");
+        return ResponseEntity.ok(list);
     }
 }
