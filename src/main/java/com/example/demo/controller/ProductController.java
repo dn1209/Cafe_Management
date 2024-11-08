@@ -27,9 +27,14 @@ public class ProductController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> getProductOrDetail (@RequestParam(required = false)ProductFilterRequest filter) {
+    public ResponseEntity<?> getProductOrDetail (@ModelAttribute ProductFilterRequest filter) {
 
             return productService.getProductList(filter);
+    }
+
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<?> detailProduct (@PathVariable Long id) {
+        return productService.getDetailProduct(id);
     }
 
     @PutMapping("/update/{id}")

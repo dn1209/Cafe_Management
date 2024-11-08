@@ -6,9 +6,9 @@ import lombok.Data;
 public class ProductFilterRequest {
     private Long productCd;
 
-    private String statusProduct;
+    private Integer statusProduct;
 
-    private String categoryId;
+    private Long categoryId;
 
     private String keyword;
 }

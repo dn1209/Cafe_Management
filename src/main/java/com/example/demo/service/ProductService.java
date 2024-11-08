@@ -11,6 +11,8 @@ public interface ProductService {
 
     ResponseEntity<?> getProductList(ProductFilterRequest productFilterRequest);
 
+    ResponseEntity<?> getDetailProduct(Long id);
+
     ResponseEntity<?> updateProduct(Long id, ProductNewRequest productNewRequest, HttpServletRequest request);
 
     ResponseEntity<?> deleteProduct(Long id);

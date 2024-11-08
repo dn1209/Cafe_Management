@@ -63,6 +63,15 @@ public class ProductServiceImp implements ProductService {
     }
 
     @Override
+    public ResponseEntity<?> getDetailProduct(Long id) {
+        Product product = productRepository.findById(id).get();
+        if (product != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(product);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(product);
+    }
+
+    @Override
     public ResponseEntity<?> updateProduct(Long id, ProductNewRequest productNewRequest, HttpServletRequest request) {
         Product product = productRepository.findById(id).get();
         if (product == null) {
@@ -88,8 +97,7 @@ public class ProductServiceImp implements ProductService {
         return ResponseEntity.status(HttpStatus.OK).body(Message.CREATE_PRODUCT_SUCCESS);
     }
 
-    private Specification<Product> buildSpecification(ProductFilterRequest filter) {
-        return (root, query, criteriaBuilder) -> {
+    private Specification<Product> buildSpecification(ProductFilterRequest filter) {return (root, query, criteriaBuilder) -> {
             Predicate predicate = criteriaBuilder.conjunction();
 
             if (filter != null) {
@@ -108,7 +116,7 @@ public class ProductServiceImp implements ProductService {
                 if (filter.getCategoryId() != null) {
                     predicate = criteriaBuilder.and(
                             predicate,
-                            criteriaBuilder.equal(root.get("category"), filter.getCategoryId()));
+                            criteriaBuilder.equal(root.get("categoryId"), filter.getCategoryId()));
                 }
 
                 if (filter.getKeyword() != null) {
