@@ -29,7 +29,7 @@ public class BillController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> getListBill(HttpServletRequest request,@PageableDefault(size = 12) Pageable pageable) {
+    public ResponseEntity<?> getListBill(HttpServletRequest request,@PageableDefault(size = 16) Pageable pageable) {
 
         return billService.getBillList(request, pageable);
     }

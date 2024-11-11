@@ -12,7 +12,6 @@ import java.util.List;
 
 @Repository
 public interface BillRepository extends JpaRepository<Bill, Long> {
-    @Query("SELECT b FROM Bill b WHERE b.storeId = ?1")
     Page<Bill> findByStoreId(Long storeId, Pageable pageable);
 
     @Modifying

@@ -1,0 +1,19 @@
+package com.example.demo.payload.request.bill;
+
+import lombok.Data;
+
+import java.util.List;
+
+@Data
+public class DetailBillRequest {
+    private int ProductId;
+
+    private int quantity;
+
+
+    public DetailBillRequest(int id, int quantity) {
+        this.ProductId = id;
+        this.quantity = quantity;
+
+    }
+}

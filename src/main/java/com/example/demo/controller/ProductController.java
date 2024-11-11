@@ -6,6 +6,7 @@ import com.example.demo.service.ProductService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,9 +28,9 @@ public class ProductController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> getProductOrDetail (@ModelAttribute ProductFilterRequest filter) {
+    public ResponseEntity<?> getProductOrDetail (@ModelAttribute ProductFilterRequest filter, Pageable pageable) {
 
-            return productService.getProductList(filter);
+            return productService.getProductList(filter, pageable);
     }
 
     @GetMapping("/detail/{id}")

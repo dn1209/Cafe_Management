@@ -5,7 +5,6 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "bill")
@@ -25,7 +24,7 @@ public class Bill {
     private long billId;
 
     @Column(name = "sell_date")
-    private LocalDateTime sellDate;
+    private LocalDate sellDate;
 
     @Column(name = "notes")
     private String notes;

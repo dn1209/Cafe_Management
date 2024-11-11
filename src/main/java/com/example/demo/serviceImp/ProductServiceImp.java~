@@ -14,8 +14,6 @@ import com.example.demo.service.StoreService;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,9 +55,9 @@ public class ProductServiceImp implements ProductService {
     }
 
     @Override
-    public ResponseEntity<?> getProductList(ProductFilterRequest filter, Pageable pageable) {
+    public ResponseEntity<?> getProductList(ProductFilterRequest filter) {
         Specification<Product> spec = buildSpecification(filter);
-        Page<Product> productList = productRepository.findAll(spec,pageable);
+        List<Product> productList = productRepository.findAll(spec);
 
         return ResponseEntity.status(HttpStatus.OK).body(productList);
     }

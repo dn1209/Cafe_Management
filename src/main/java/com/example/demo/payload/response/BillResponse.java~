@@ -13,7 +13,7 @@ import java.util.List;
 public class BillResponse {
     private long billId;
 
-    private String sellDate;
+    private LocalDateTime sellDate;
 
     private String notes;
 

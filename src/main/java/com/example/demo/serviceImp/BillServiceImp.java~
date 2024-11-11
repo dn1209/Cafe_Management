@@ -16,7 +16,6 @@ import com.example.demo.service.BillService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -167,7 +166,7 @@ public class BillServiceImp implements BillService {
             return billResponse;
         }).collect(Collectors.toList());
 
-        return ResponseEntity.status(HttpStatus.OK).body(new PageImpl<>(billResponseList, pageable, billPage.getTotalElements()));
+        return ResponseEntity.status(HttpStatus.OK).body(billResponseList);
     }
 
 

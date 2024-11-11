@@ -60,9 +60,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         } catch (Exception ex) {
             log.error("fail on set user authentication", ex);
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Invalid or missing JWT token\"}");
+            response.getWriter().write("{\"error\": \"An error occurred while processing the authentication\"}");
             return;
         }
 
