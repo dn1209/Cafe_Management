@@ -1,19 +1,27 @@
 package com.example.demo.serviceImp;
 
+import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.model.Category;
 import com.example.demo.model.Message;
-import com.example.demo.payload.request.CategoryRequest;
+import com.example.demo.model.Product;
+import com.example.demo.model.Store;
+import com.example.demo.payload.request.category.CategoryRequest;
+import com.example.demo.payload.request.product.ProductFilterRequest;
 import com.example.demo.repository.CategoryRepository;
+import com.example.demo.repository.StoreRepository;
 import com.example.demo.service.AuthenticateService;
 import com.example.demo.service.CategoryService;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CategoryServiceImp implements CategoryService {
@@ -21,25 +29,32 @@ public class CategoryServiceImp implements CategoryService {
     private AuthenticateService authenticateService;
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private StoreRepository storeRepository;
 
     @Override
-    public ResponseEntity<?> createCategory(CategoryRequest name, HttpServletRequest request) {
+    public ResponseEntity<?> createCategory(CategoryRequest categoryRequest, HttpServletRequest request) {
         if (authenticateService.getStoreIdByUserId(request) == null) {
             //logger
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.STORE_NOT_FOUND);
         }
+        Store store = findStoreById(categoryRequest.getStoreId());
+        if (store == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.STORE_NOT_FOUND);
+        }
         Category category = new Category();
-        category.setCategoryName(name.getCategoryName());
+        category.setCategoryName(categoryRequest.getCategoryName());
         category.setCreatedDate(LocalDate.now());
-        category.setStoreId(authenticateService.getStoreIdByUserId(request));
+        category.setStoreId(store.getStoreId());
         category.setStatus(1);
         categoryRepository.save(category);
         return ResponseEntity.status(HttpStatus.OK).body(Message.CREATE_CATEGORY_SUCCESS);
     }
 
     @Override
-    public ResponseEntity<?> getCategoryList() {
-        List<Category> categoryList = categoryRepository.findAllByStatus();
+    public ResponseEntity<?> getCategoryList(Long storeId, boolean isForUser, HttpServletRequest request) {
+        Specification<Category> spec = buildSpecification(storeId, isForUser, request);
+        List<Category> categoryList = categoryRepository.findAll(spec);
 
         return ResponseEntity.status(HttpStatus.OK).body(categoryList);
     }
@@ -63,6 +78,34 @@ public class CategoryServiceImp implements CategoryService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.CATEGORY_NOT_FOUND);
         }
         category.setStatus(0);
+        categoryRepository.save(category);
         return ResponseEntity.status(HttpStatus.OK).body(Message.DELETE_CATEGORY_SUCCESS);
+    }
+
+    private Specification<Category> buildSpecification(Long filter, boolean isForUser, HttpServletRequest request) {return (root, query, criteriaBuilder) -> {
+        Predicate predicate = criteriaBuilder.conjunction();
+        Long storeId = authenticateService.getStoreIdByUserId(request);
+
+        if (filter != null) {
+            predicate = criteriaBuilder.and(
+                    predicate,
+                    criteriaBuilder.equal(root.get("storeId"), filter));
+        }
+        if (isForUser){
+            predicate = criteriaBuilder.and(
+                    predicate,
+                    criteriaBuilder.equal(root.get("storeId"), storeId));
+            predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("status"), 1));
+        }
+        return predicate;
+    };
+    }
+    public Store findStoreById(Long id) {
+        Optional<Store> storeOptional = storeRepository.findStoreById(id);
+        if (storeOptional.isEmpty()) {
+            throw new UserNotFoundException("Store not found with username: " + id);
+        }
+        Store store = storeOptional.get();
+        return store;
     }
 }

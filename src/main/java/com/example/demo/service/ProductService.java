@@ -1,8 +1,8 @@
 package com.example.demo.service;
 
 
-import com.example.demo.payload.request.ProductFilterRequest;
-import com.example.demo.payload.request.ProductNewRequest;
+import com.example.demo.payload.request.product.ProductFilterRequest;
+import com.example.demo.payload.request.product.ProductNewRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 public interface ProductService {
     ResponseEntity<?> addNewProduct(ProductNewRequest productNewRequest, HttpServletRequest request);
 
-    ResponseEntity<?> getProductList(ProductFilterRequest productFilterRequest, Pageable pageable);
+    ResponseEntity<?> getProductList(ProductFilterRequest productFilterRequest, Pageable pageable, boolean isForUser, HttpServletRequest request);
 
     ResponseEntity<?> getDetailProduct(Long id);
 

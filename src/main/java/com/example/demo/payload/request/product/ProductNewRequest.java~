@@ -1,13 +1,10 @@
-package com.example.demo.payload.request;
+package com.example.demo.payload.request.product;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
 public class ProductNewRequest {
     private String prdName;
-
-    private int prdOriginPrice;
 
     private int prdSellPrice;
 

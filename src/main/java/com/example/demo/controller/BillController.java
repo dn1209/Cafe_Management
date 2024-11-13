@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("/api_bill")
 public class BillController {
@@ -32,6 +34,40 @@ public class BillController {
     public ResponseEntity<?> getListBill(HttpServletRequest request,@PageableDefault(size = 12) Pageable pageable) {
 
         return billService.getBillList(request, pageable);
+    }
+
+    @GetMapping("/revenue")
+    public ResponseEntity<?> getRevenue(
+            @RequestParam("startDate") String startDateStr,
+            @RequestParam("endDate") String endDateStr) {
+
+        LocalDateTime startDate = LocalDateTime.parse(startDateStr);
+        LocalDateTime endDate = LocalDateTime.parse(endDateStr);
+
+        return billService.getRevenue(startDate, endDate);
+    }
+
+    @GetMapping("/store")
+    public ResponseEntity<?> getRevenueByStore(
+            @RequestParam("storeId") Long storeId,
+            @RequestParam("startDate") String startDateStr,
+            @RequestParam("endDate") String endDateStr) {
+
+        LocalDateTime startDate = LocalDateTime.parse(startDateStr);
+        LocalDateTime endDate = LocalDateTime.parse(endDateStr);
+
+        return billService.getRevenueByStore(storeId, startDate, endDate);
+    }
+
+    @GetMapping("/all-stores")
+    public ResponseEntity<?> getRevenueForAllStores(
+            @RequestParam("startDate") String startDateStr,
+            @RequestParam("endDate") String endDateStr) {
+
+        LocalDateTime startDate = LocalDateTime.parse(startDateStr);
+        LocalDateTime endDate = LocalDateTime.parse(endDateStr);
+
+        return billService.getRevenueForAllStores(startDate, endDate);
     }
 
 }

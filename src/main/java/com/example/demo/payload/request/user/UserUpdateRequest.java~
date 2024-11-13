@@ -1,0 +1,23 @@
+package com.example.demo.payload.request.user;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+
+@Data
+public class UserUpdateRequest {
+    @NotBlank
+    private String userName;
+
+    @NotBlank
+    private int storeId;
+
+    @NotBlank
+    private int userStatus;
+
+    @NotBlank
+    private int userRole;
+
+    @NotBlank
+    private String displayName;
+
+}

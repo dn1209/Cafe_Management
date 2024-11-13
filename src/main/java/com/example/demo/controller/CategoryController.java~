@@ -27,7 +27,7 @@ public class CategoryController {
         return categoryService.createCategory(categoryRequest, request);
     }
     @GetMapping("/list")
-    public ResponseEntity<?> getCategporyList (@RequestParam(required = false)  Long storeId, HttpServletRequest request) {
+    public ResponseEntity<?> getCategporyList (@RequestParam  Long storeId, HttpServletRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String authority = authentication.getAuthorities().iterator().next().getAuthority();
         // Logic xử lý khi người dùng là ADMIN

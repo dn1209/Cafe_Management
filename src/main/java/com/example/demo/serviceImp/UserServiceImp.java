@@ -1,8 +1,11 @@
 package com.example.demo.serviceImp;
 
-import com.example.demo.SecurityConfig;
+import com.example.demo.model.Product;
+import com.example.demo.payload.request.product.ProductFilterRequest;
+import com.example.demo.payload.request.user.UserFilterRequest;
+import com.example.demo.security.SecurityConfig;
 import com.example.demo.exception.UserNotFoundException;
-import com.example.demo.jwt.JwtTokenProvider;
+import com.example.demo.security.JwtTokenProvider;
 import com.example.demo.model.Message;
 import com.example.demo.model.Store;
 import com.example.demo.model.User;
@@ -10,10 +13,15 @@ import com.example.demo.model.enums.UserRole;
 import com.example.demo.payload.authenticate.LoginRequest;
 import com.example.demo.payload.authenticate.LoginResponse;
 import com.example.demo.payload.authenticate.RegisterRequest;
+import com.example.demo.payload.request.user.ChangePasswordUser;
+import com.example.demo.payload.request.user.UserUpdateRequest;
 import com.example.demo.repository.StoreRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.UserService;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,6 +35,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,75 +59,136 @@ public class UserServiceImp implements UserService {
         if (userNameExists) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Message.USER_ALREADY_EXISTS);
         }
+        Optional<Store> storeOptional = storeRepository.findStoreById(registerRequest.getStoreId());
+        if (storeOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Message.STORE_NOT_FOUND);
+        }
+        Store store = storeOptional.get();
 
-        registerUser(registerRequest.getUsername(),registerRequest.getPassword(),findStoreByUserName(registerRequest.getDisplay_name()),registerRequest.getEmail());
+        registerUser(registerRequest.getUsername(),registerRequest.getPassword(),store.getStoreId());
         return ResponseEntity.status(HttpStatus.CREATED).body(Message.CREATE_USER_SUCCESS);
     }
 
     @Override
     public ResponseEntity<?> login(LoginRequest loginRequest) {
-        User user = userRepository.findUserByUserName(loginRequest.getUsername());
-        if (user == null) {
-            //logger
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Message.USER_NOT_FOUND);
-        }
+        try {
+            User user = userRepository.findUserByUserName(loginRequest.getUsername());
+            if (user == null) {
+                //logger
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Message.USER_NOT_FOUND);
+            }
 
-        String password = loginRequest.getPassword();
-        Store store = storeRepository.findStoreByUserName(loginRequest.getParentuser());
-        if (store == null) {
-            //logger
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Message.STORE_NOT_FOUND);
-        }
-        if (user.getUserName().equals(loginRequest.getUsername()) && !user.getUserStatus().equals("0")) {
-            //logger
+            String password = loginRequest.getPassword();
+            if (!user.getUserName().equals(loginRequest.getUsername())) {
+                //logger
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Message.INVALID_USER);
+            }
+
+            if (!passwordEncoder.matches(password, user.getPassword())) {
+                //logger.error(Messages.INVALID_PASSWORD);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Message.INVALID_PASSWORD);
+            }
+
+            if (user.getUserStatus() != 0) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Message.INVALID_USER);
+            }
+
+            List<GrantedAuthority> authorities = new ArrayList<>();
+            switch (user.getUserRole()) {
+                case 0:
+                    authorities.add(new SimpleGrantedAuthority(UserRole.ADMIN.name()));
+                    break;
+
+                case 1:
+                    authorities.add(new SimpleGrantedAuthority(UserRole.USER.name()));
+                    break;
+            }
+
+            Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            LocalDate today = LocalDate.now();
+            user.setLogined(today);
+            userRepository.save(user);
+            String jwt = tokenProvider.generateToken(user);
+            List<String> listRoles = authorities.stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
+
+
+            LoginResponse loginResponse = new LoginResponse(
+                    user.getUserId(),
+                    user.getUserName(),
+                    user.getDisplayName(),
+                    user.getUserStatus(),
+                    user.getCreatedAt(),
+                    user.getUpdatedAt(),
+                    user.getLogined(),
+                    jwt,
+                    listRoles.get(0));
+
+            return ResponseEntity.status(HttpStatus.OK).body(loginResponse);
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Message.INVALID_USER);
         }
+    }
 
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            //logger.error(Messages.INVALID_PASSWORD);
+    @Override
+    public ResponseEntity<?> getAllUsers(Long storeId) {
+        Specification<User> spec = buildSpecification(storeId);
+        List<User> users = userRepository.findAll(spec);
+
+        return ResponseEntity.status(HttpStatus.OK).body(users);
+    }
+
+    @Override
+    public ResponseEntity<?> changePassword(Long id, ChangePasswordUser changePasswordUser) {
+        User user = userRepository.findUserById(id);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Message.USER_NOT_FOUND);
+        }
+        if (!passwordEncoder.matches(changePasswordUser.getOldPassword(), user.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Message.INVALID_PASSWORD);
         }
 
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        switch (user.getUserRole()) {
-            case 0:
-                authorities.add(new SimpleGrantedAuthority(UserRole.ADMIN.name()));
-                break;
+        user.setPassword(passwordEncoder.encode(changePasswordUser.getNewPassword()));
+        userRepository.save(user);
 
-            case 1:
-                authorities.add(new SimpleGrantedAuthority(UserRole.USER.name()));
-                break;
-        }
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        String jwt = tokenProvider.generateToken(user);
-        List<String> listRoles = authorities.stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
-
-        LoginResponse loginResponse = new LoginResponse(
-                user.getUserId(),
-                user.getUserName(),
-                user.getEmail(),
-                user.getDisplayName(),
-                user.getUserStatus(),
-                user.getCreatedAt(),
-                user.getUpdatedAt(),
-                user.getLogined(),
-                jwt);
-
-        return ResponseEntity.status(HttpStatus.OK).body(loginResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(Message.CHANGE_PASSWORD_SUCCESS);
     }
 
-    private void registerUser(String userName, String password, Long storeId, String email) {
+    @Override
+    public ResponseEntity<?> updateUser(Long id, UserUpdateRequest userUpdateRequest) {
+
+        User user = userRepository.findUserById(id);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Message.USER_NOT_FOUND);
+        }
+
+        user.setDisplayName(userUpdateRequest.getDisplayName());
+        user.setUserName(userUpdateRequest.getUserName());
+        user.setUserStatus(userUpdateRequest.getUserStatus());
+        user.setUserRole(  userUpdateRequest.getUserRole());
+        user.setStoreId(  userUpdateRequest.getStoreId());
+        userRepository.save(user);
+        return ResponseEntity.status(HttpStatus.OK).body(Message.UPDATE_USER_SUCCESS);
+    }
+
+    @Override
+    public ResponseEntity<?> detailUser(Long id) {
+        User user = userRepository.findUserById(id);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Message.USER_NOT_FOUND);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(user);
+    }
+
+    private void registerUser(String userName, String password, Long storeId) {
         LocalDate today = LocalDate.now();
         User user = new User(
                 userName,
                 securityConfig.passwordEncoder().encode(password),
-                email,
-                "1",
+                0,
                 today,
                 today,
                 storeId,
@@ -138,5 +208,20 @@ public class UserServiceImp implements UserService {
             throw new UserNotFoundException("Store not found with username: " + userName);
         }
         return store.getStoreId();
+    }
+    private Specification<User> buildSpecification(Long storeId) {return (root, query, criteriaBuilder) -> {
+        Predicate predicate = criteriaBuilder.conjunction();
+
+        if (storeId != null) {
+
+            predicate = criteriaBuilder.and(
+                    predicate,
+                    criteriaBuilder.equal(root.get("storeId"), storeId));
+
+        }
+        query.orderBy(criteriaBuilder.asc(criteriaBuilder.toLong(root.get("storeId"))));
+
+        return predicate;
+    };
     }
 }

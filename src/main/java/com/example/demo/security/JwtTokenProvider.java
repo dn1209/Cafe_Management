@@ -1,4 +1,4 @@
-package com.example.demo.jwt;
+package com.example.demo.security;
 
 import com.example.demo.exception.JwtInvalidException;
 import com.example.demo.model.User;

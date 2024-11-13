@@ -1,8 +1,5 @@
-package com.example.demo.jwt;
+package com.example.demo.security;
 
-import com.example.demo.exception.JwtInvalidException;
-import com.example.demo.model.CustomUserDetails;
-import com.example.demo.service.CustomUserDetailService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,6 +14,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -26,16 +25,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private CustomUserDetailService customUserDetailsService;
+    private static final List<String> PUBLIC_URLS = Arrays.asList("/api/register", "/api/login");
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String path = request.getRequestURI();
-        if ("/api/login".equals(path)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+//        String path = request.getRequestURI();
+//        if ("/api/login".equals(path) || "/api/register".equals(path)) {
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
 
         try {
             String jwt = getJwtFromRequest(request);
@@ -60,15 +60,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         } catch (Exception ex) {
             log.error("fail on set user authentication", ex);
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"An error occurred while processing the authentication\"}");
+            response.getWriter().write("{\"error\": \"Invalid or missing JWT token\"}");
             return;
         }
 
         filterChain.doFilter(request, response);
     }
-
+    @Override
+    public boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return PUBLIC_URLS.stream().anyMatch(path::equals);
+    }
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         // Kiểm tra xem header Authorization có chứa thông tin jwt không

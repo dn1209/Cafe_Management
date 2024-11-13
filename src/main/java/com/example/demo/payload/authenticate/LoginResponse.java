@@ -11,11 +11,9 @@ public class LoginResponse {
 
     private String userName;
 
-    private String email;
-
     private String displayName;
 
-    private String userStatus;
+    private int userStatus;
 
     private LocalDate createdAt;
 
@@ -25,23 +23,25 @@ public class LoginResponse {
 
     private String tokenLogin;
 
+    private String userRole;
+
     public LoginResponse(long userId,
                          String userName,
-                         String email,
                          String displayName,
-                         String userStatus,
+                         int userStatus,
                          LocalDate createdAt,
                          LocalDate updatedAt,
                          LocalDate logined,
-                         String tokenLogin) {
+                         String tokenLogin,
+                         String userRole) {
         this.userId = userId;
         this.userName = userName;
-        this.email = email;
         this.displayName = displayName;
         this.userStatus = userStatus;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.logined = logined;
         this.tokenLogin = tokenLogin;
+        this.userRole = userRole;
     }
 }

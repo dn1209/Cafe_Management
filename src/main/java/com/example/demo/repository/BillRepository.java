@@ -6,8 +6,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -18,5 +21,15 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
     @Modifying
     @Query("UPDATE Bill b set b.orderStatus = 0 WHERE b.billId = ?1")
     void updateBillsByBillId(Long bId);
+
+    @Query("SELECT SUM(b.totalPrice) FROM Bill b WHERE b.sellDate BETWEEN :startDate AND :endDate")
+    BigDecimal calculateRevenueBetweenDates(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT SUM(b.totalPrice) FROM Bill b WHERE b.storeId = :storeId AND b.sellDate BETWEEN :startDate AND :endDate")
+    BigDecimal calculateRevenueByStore(@Param("storeId") Long storeId, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    // Doanh thu của tất cả cửa hàng trong khoảng thời gian
+    @Query("SELECT b.storeId, SUM(b.totalPrice) FROM Bill b WHERE b.sellDate BETWEEN :startDate AND :endDate GROUP BY b.storeId")
+    List<Object[]> calculateRevenueForAllStores(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
 }

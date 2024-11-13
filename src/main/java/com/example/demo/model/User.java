@@ -33,14 +33,11 @@ public class User {
     @Column(name = "password")
     private String password;
 
-    @Column(name = "email")
-    private String email;
-
     @Column(name = "display_name")
     private String displayName;
 
     @Column(name = "user_status")
-    private String userStatus;
+    private int userStatus;
 
     @Column(name = "created_at")
     private LocalDate createdAt;
@@ -57,38 +54,15 @@ public class User {
     @Column(name = "logined")
     private LocalDate logined;
 
-    @Column(name = "token_login")
-    private String tokenLogin;
-
-//    public User(String userName,
-//                String password,
-//                String email,
-//                String userStatus,
-//                LocalDate created,
-//                LocalDate updated,
-//                Store store,
-//                LocalDate logined) {
-//        this.userName = userName;
-//        this.password = password;
-//        this.email = email;
-//        this.userStatus = userStatus;
-//        this.createdAt = createdAt;
-//        this.updatedAt = updatedAt;
-//        this.store = store;
-//        this.logined = logined;
-//    }
-
     public User(String userName,
                 String password,
-                String email,
-                String userStatus,
+                int userStatus,
                 LocalDate createdAt,
                 LocalDate updatedAt,
                 Long storeId,
                 LocalDate logined) {
         this.userName = userName;
         this.password = password;
-        this.email = email;
         this.userStatus = userStatus;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;

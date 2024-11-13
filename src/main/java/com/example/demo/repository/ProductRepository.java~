@@ -27,6 +27,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     @Query("SELECT u from Product u WHERE u.productId = ?1 and  u.storeId = ?2")
     Optional<Product> findByIdAndStore(Long id, Long sId);
 
+    List<Product> findByProductIdInAndStoreId(List<Long> ids, Long sId);
+
     @Query("SELECT u from Product u WHERE u.productId = ?1 and  u.storeId = ?2")
     Optional<Product> findByIdAndName(String name, Long sId);
 

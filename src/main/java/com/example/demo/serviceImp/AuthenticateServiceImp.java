@@ -1,8 +1,8 @@
 package com.example.demo.serviceImp;
 
-import com.example.demo.SecurityConfig;
+import com.example.demo.security.SecurityConfig;
 import com.example.demo.exception.UserNotFoundException;
-import com.example.demo.jwt.JwtTokenProvider;
+import com.example.demo.security.JwtTokenProvider;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.AuthenticateService;
 import jakarta.servlet.http.HttpServletRequest;

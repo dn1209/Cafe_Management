@@ -41,16 +41,6 @@ public class StoreServiceImp implements StoreService {
     }
 
     @Override
-    public ResponseEntity<?> detailStore(Long id) {
-        Optional<Store> storeOptional = storeRepository.findStoreById(id);
-        if (storeOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Message.STORE_NOT_FOUND);
-        }
-        Store store = storeOptional.get();
-        return ResponseEntity.status(HttpStatus.OK).body(store);
-    }
-
-    @Override
     public ResponseEntity<?> updateStore(Long id, StoreRequest storeRequest) {
         boolean storeNameExists = storeRepository.existsByStoreUserName(storeRequest.getStoreName());
         if (!storeNameExists) {

@@ -2,17 +2,16 @@ package com.example.demo.serviceImp;
 
 import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.model.*;
-import com.example.demo.payload.request.ProductFilterRequest;
-import com.example.demo.payload.request.ProductNewRequest;
+import com.example.demo.payload.request.product.ProductFilterRequest;
+import com.example.demo.payload.request.product.ProductNewRequest;
 import com.example.demo.repository.CategoryRepository;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.StoreRepository;
-import com.example.demo.repository.UserRepository;
 import com.example.demo.service.AuthenticateService;
 import com.example.demo.service.ProductService;
-import com.example.demo.service.StoreService;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -45,7 +43,7 @@ public class ProductServiceImp implements ProductService {
         if (category == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.CATEGORY_NOT_FOUND);
         }
-        Store store = findStoreById(authenticateService.getStoreIdByUserId(request));
+        Store store = findStoreById(productNewRequest.getStoreId());
         if (store == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.STORE_NOT_FOUND);
         }
@@ -57,8 +55,8 @@ public class ProductServiceImp implements ProductService {
     }
 
     @Override
-    public ResponseEntity<?> getProductList(ProductFilterRequest filter, Pageable pageable) {
-        Specification<Product> spec = buildSpecification(filter);
+    public ResponseEntity<?> getProductList(ProductFilterRequest filter, Pageable pageable, boolean isForUser, HttpServletRequest request) {
+        Specification<Product> spec = buildSpecification(filter, isForUser, request);
         Page<Product> productList = productRepository.findAll(spec,pageable);
 
         return ResponseEntity.status(HttpStatus.OK).body(productList);
@@ -86,9 +84,9 @@ public class ProductServiceImp implements ProductService {
         product.setCategoryId(category.getCategoryId());
         updateProduct(productNewRequest, product);
         productRepository.save(product);
-        return ResponseEntity.status(HttpStatus.OK).body(Message.CREATE_PRODUCT_SUCCESS);
+        return ResponseEntity.status(HttpStatus.OK).body(Message.UPDATE_PRODUCT_SUCCESS);
     }
-
+    @Transactional
     @Override
     public ResponseEntity<?> deleteProduct(Long id) {
         Product product = productRepository.findById(id).get();
@@ -99,26 +97,20 @@ public class ProductServiceImp implements ProductService {
         return ResponseEntity.status(HttpStatus.OK).body(Message.CREATE_PRODUCT_SUCCESS);
     }
 
-    private Specification<Product> buildSpecification(ProductFilterRequest filter) {return (root, query, criteriaBuilder) -> {
+    private Specification<Product> buildSpecification(ProductFilterRequest filter, boolean isForUser, HttpServletRequest request) {return (root, query, criteriaBuilder) -> {
             Predicate predicate = criteriaBuilder.conjunction();
-
+            Long storeId = authenticateService.getStoreIdByUserId(request);
             if (filter != null) {
-                if (filter.getProductCd() != null) {
-                    predicate = criteriaBuilder.and(
-                            predicate,
-                            criteriaBuilder.equal(root.get("productCd"), filter.getProductCd()));
-                }
-
-                if (filter.getStatusProduct() != null) {
-                    predicate = criteriaBuilder.and(
-                            predicate,
-                            criteriaBuilder.equal(root.get("prdStatus"), filter.getStatusProduct()));
-                }
-
                 if (filter.getCategoryId() != null) {
                     predicate = criteriaBuilder.and(
                             predicate,
                             criteriaBuilder.equal(root.get("categoryId"), filter.getCategoryId()));
+                }
+
+                if (filter.getStoreId() != null) {
+                    predicate = criteriaBuilder.and(
+                            predicate,
+                            criteriaBuilder.equal(root.get("storeId"), filter.getStoreId()));
                 }
 
                 if (filter.getKeyword() != null) {
@@ -129,7 +121,12 @@ public class ProductServiceImp implements ProductService {
                                     "%" + filter.getKeyword().toLowerCase() + "%"));
                 }
             }
-            predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("prdStatus"), 1));
+            if (isForUser){
+                predicate = criteriaBuilder.and(
+                        predicate,
+                        criteriaBuilder.equal(root.get("storeId"), storeId));
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("prdStatus"), 1));
+            }
 
             query.orderBy(criteriaBuilder.asc(criteriaBuilder.toLong(root.get("productCd"))));
 
@@ -143,8 +140,6 @@ public class ProductServiceImp implements ProductService {
         product.setProductName(productNewRequest.getPrdName());
         product.setProductCd(a);
         product.setPrdSellPrice(BigDecimal.valueOf(productNewRequest.getPrdSellPrice()));
-        product.setPrdOriginalPrice(BigDecimal.valueOf(productNewRequest.getPrdOriginPrice()));
-        product.setNote(productNewRequest.getNote());
         product.setCreatedAt(today);
         product.setPrdStatus(1);
     }
@@ -152,9 +147,6 @@ public class ProductServiceImp implements ProductService {
     private void updateProduct(ProductNewRequest productNewRequest, Product product) {
         product.setProductName(productNewRequest.getPrdName());
         product.setPrdSellPrice(BigDecimal.valueOf(productNewRequest.getPrdSellPrice()));
-        product.setPrdOriginalPrice(BigDecimal.valueOf(productNewRequest.getPrdOriginPrice()));
-        product.setPrdStatus(productNewRequest.getStatus());
-        product.setNote(productNewRequest.getNote());
     }
 
     public Category findCategoryById(Long id) {

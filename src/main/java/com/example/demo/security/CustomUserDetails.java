@@ -1,5 +1,6 @@
-package com.example.demo.model;
+package com.example.demo.security;
 
+import com.example.demo.model.User;
 import com.example.demo.model.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,10 +19,10 @@ public class CustomUserDetails {
     private String userName;
 
     private String password;
-    
+
     private String displayName;
 
-    private String userStatus;
+    private int userStatus;
 
     private LocalDate createdAt;
 

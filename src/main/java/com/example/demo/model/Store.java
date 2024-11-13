@@ -3,6 +3,7 @@ package com.example.demo.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -24,6 +25,18 @@ public class Store {
 
     @Column(name = "store_name")
     private String storeName;
+
+    @Column(name = "store_address")
+    private String storeAddress;
+
+    @Column(name = "store_status")
+    private Integer storeStatus;
+
+    @Column(name = "store_created_date")
+    private LocalDate storeCreatedDate;
+
+    @Column(name = "store_updated_date")
+    private LocalDate storeUpdatedDate;
 
     public Store(){
     }

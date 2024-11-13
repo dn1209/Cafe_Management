@@ -7,10 +7,16 @@ public class Message {
     public static final String STORE_NOT_FOUND = "STORE_NOT_FOUND";
     public static final String CREATE_USER_SUCCESS = "CREATE_USER_SUCCESS";
     public static final String USER_ALREADY_EXISTS = "USER_ALREADY_EXISTS";
-
+    public static final String STORE_ALREADY_EXISTS = "STORE_ALREADY_EXISTS";
+    public static final String CREATE_STORE_SUCCESS = "CREATE_STORE_SUCCESS";
+    public static final String UPDATE_STORE_SUCCESS = "UPDATE_STORE_SUCCESS";
+    public static final String DELETE_STORE_SUCCESS = "DELETE_STORE_SUCCESS";
+    public static final String CHANGE_PASSWORD_SUCCESS = "CHANGE_PASSWORD_SUCCESS";
+    public static final String UPDATE_USER_SUCCESS = "UPDATE_USER_SUCCESS";
     //product
     public static final String CREATE_PRODUCT_SUCCESS = "CREATE_PRODUCT_SUCCESS";
     public static final String PRODUCT_NOT_FOUND = "PRODUCT_NOT_FOUND";
+    public static final String UPDATE_PRODUCT_SUCCESS = "UPDATE_PRODUCT_SUCCESS";
 
     //category
     public static final String CREATE_CATEGORY_SUCCESS = "CREATE_CATEGORY_SUCCESS";

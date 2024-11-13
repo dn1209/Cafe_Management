@@ -33,7 +33,7 @@ public class ProductController {
         // Logic xử lý khi người dùng là ADMIN
         boolean isForUser = !"ADMIN".equals(authority);
 
-        return productService.getProductList(filter, pageable, isForUser, request);
+        return productService.getProductList(filter, pageable, isForUser);
     }
 
     @GetMapping("/detail/{id}")

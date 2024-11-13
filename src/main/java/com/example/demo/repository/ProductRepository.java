@@ -40,11 +40,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     boolean existsByName(String name);
 
     @Modifying
-    @Query("UPDATE Product u set u.productName = ?1,u.prdOriginalPrice = ?2,u.prdSellPrice= ?3 , u.categoryId = ?4,u.prdStatus = ?5 WHERE u.productId = ?6 ")
-    void updateProductById(String prd_name, Float prdOriginalPrice,
-                           Float prdSellPrice, Long category, int prdStatus, Long id);
-
-    @Modifying
     @Query("UPDATE Product u set u.prdStatus = 0 WHERE u.productId = ?1 ")
     void deleteProductWithStatus(Long id);
 }

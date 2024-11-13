@@ -1,5 +1,6 @@
-package com.example.demo.model;
+package com.example.demo.security;
 
+import com.example.demo.model.User;
 import com.example.demo.model.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,8 +19,6 @@ public class CustomUserDetails {
     private String userName;
 
     private String password;
-
-    private String email;
 
     private String displayName;
 
@@ -50,7 +49,6 @@ public class CustomUserDetails {
                 user.getUserId(),
                 user.getUserName(),
                 user.getPassword(),
-                user.getEmail(),
                 user.getDisplayName(),
                 user.getUserStatus(),
                 user.getCreatedAt(),

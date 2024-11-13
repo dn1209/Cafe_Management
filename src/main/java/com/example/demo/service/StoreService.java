@@ -1,12 +1,18 @@
 package com.example.demo.service;
 
 import com.example.demo.model.Store;
+import com.example.demo.payload.request.StoreRequest;
+import org.springframework.http.ResponseEntity;
 
 public interface StoreService {
-     Store saveStore(String nameStore);
+    ResponseEntity<?> getAllStore();
 
-     boolean checkStoreName(String userName);
+    ResponseEntity<?> registerStore(StoreRequest storeRequest);
 
-     Store findStoreByUserName(String userName);
+    ResponseEntity<?> detailStore(Long id);
+
+    ResponseEntity<?> updateStore(Long id, StoreRequest storeRequest);
+
+    ResponseEntity<?> deleteStore(Long id);
 
 }

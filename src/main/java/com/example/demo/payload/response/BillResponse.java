@@ -25,9 +25,7 @@ public class BillResponse {
 
     private BigDecimal changeAmount;
 
-    private Long storeId;
-
-    private Long saleId;
+    private String saleName;
 
     private int orderStatus;
 

@@ -8,10 +8,8 @@ public class RegisterRequest {
     @NotBlank
     private String username;
     @NotBlank
-    private String display_name;
-    @NotBlank
     private String password;
     @NotBlank
-    private String email;
+    private Long storeId;
 
 }

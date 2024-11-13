@@ -11,6 +11,7 @@ import com.example.demo.payload.response.DetailBillResponse;
 import com.example.demo.repository.BillRepository;
 import com.example.demo.repository.DetailBillRepository;
 import com.example.demo.repository.ProductRepository;
+import com.example.demo.repository.UserRepository;
 import com.example.demo.service.AuthenticateService;
 import com.example.demo.service.BillService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,6 +42,8 @@ public class BillServiceImp implements BillService {
     private BillRepository billRepository;
     @Autowired
     private DetailBillRepository detailBillRepository;
+    @Autowired
+    private UserRepository userRepository;
     @Override
     public ResponseEntity<?> addNew(BillRequest billRequest, HttpServletRequest request) {
         Long storeId = authenticateService.getStoreIdByUserId(request);
@@ -85,8 +88,10 @@ public class BillServiceImp implements BillService {
         bill.setStoreId(storeId);
         bill.setSaleId(saleId);
         BigDecimal totalPrice = BigDecimal.ZERO;
+
         for (Product product : productList) {
             BigDecimal prdSellPrice = product.getPrdSellPrice();
+
             totalPrice = totalPrice.add(prdSellPrice);
         }
         bill.setTotalPrice(totalPrice);
@@ -142,6 +147,7 @@ public class BillServiceImp implements BillService {
             BillResponse billResponse = BillResponse.builder()
                     .billId(bill.getBillId())
                     .sellDate(bill.getSellDate().format(formatter))
+                    .saleName(userRepository.getUserNameById(bill.getSaleId()) == null ? "" : userRepository.getUserNameById(bill.getSaleId()))
                     .notes(bill.getNotes())
                     .totalQuantity(bill.getTotalQuantity())
                     .totalPrice(bill.getTotalPrice())
@@ -170,15 +176,31 @@ public class BillServiceImp implements BillService {
         return ResponseEntity.status(HttpStatus.OK).body(new PageImpl<>(billResponseList, pageable, billPage.getTotalElements()));
     }
 
+    @Override
+    public ResponseEntity<?> getRevenue(LocalDateTime startDate, LocalDateTime endDate) {
+        BigDecimal totalPrice = BigDecimal.ZERO;
+        totalPrice = billRepository.calculateRevenueBetweenDates(startDate, endDate);
 
+        return ResponseEntity.status(HttpStatus.OK).body(totalPrice);
+    }
 
     @Override
-    public ResponseEntity<?> deleteBill(Long id) {
-        Bill bill = billRepository.findById(id).get();
-        if (bill == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.BILL_NOT_FOUND);
-        }
-        billRepository.updateBillsByBillId(id);
-        return ResponseEntity.status(HttpStatus.OK).body(Message.DELETE_BILL_SUCCESS);
+    public ResponseEntity<?> getRevenueByStore(Long storeId, LocalDateTime startDate, LocalDateTime endDate) {
+        BigDecimal totalPrice = BigDecimal.ZERO;
+        totalPrice = billRepository.calculateRevenueByStore(storeId, startDate, endDate);
+        return ResponseEntity.status(HttpStatus.OK).body(totalPrice);
     }
+
+    @Override
+    public ResponseEntity<?> getRevenueForAllStores(LocalDateTime startDate, LocalDateTime endDate) {
+        List<Object[]> results = billRepository.calculateRevenueForAllStores(startDate, endDate);
+        Map<Long, BigDecimal> revenueByStore = new HashMap<>();
+        for (Object[] result : results) {
+            Long storeId = (Long) result[0];
+            BigDecimal revenue = (BigDecimal) result[1];
+            revenueByStore.put(storeId, revenue);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(revenueByStore);
+    }
+
 }
