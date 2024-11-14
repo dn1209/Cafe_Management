@@ -1,12 +1,16 @@
 package com.example.demo.serviceImp;
 
 import com.example.demo.exception.UserNotFoundException;
+import com.example.demo.model.Category;
 import com.example.demo.model.Message;
 import com.example.demo.model.Store;
 import com.example.demo.payload.request.StoreRequest;
 import com.example.demo.repository.StoreRepository;
 import com.example.demo.service.StoreService;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -52,10 +56,6 @@ public class StoreServiceImp implements StoreService {
 
     @Override
     public ResponseEntity<?> updateStore(Long id, StoreRequest storeRequest) {
-        boolean storeNameExists = storeRepository.existsByStoreUserName(storeRequest.getStoreName());
-        if (!storeNameExists) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Message.STORE_ALREADY_EXISTS);
-        }
         Optional<Store> storeOptional = storeRepository.findStoreById(id);
         if (storeOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Message.STORE_NOT_FOUND);
@@ -64,6 +64,7 @@ public class StoreServiceImp implements StoreService {
         store.setStoreUpdatedDate(today);
         store.setStoreAddress(storeRequest.getStoreAddress());
         store.setStoreName(storeRequest.getStoreName());
+        store.setStoreStatus(storeRequest.getStoreStatus());
         storeRepository.save(store);
         return ResponseEntity.status(HttpStatus.OK).body(Message.UPDATE_STORE_SUCCESS);
     }
@@ -75,7 +76,7 @@ public class StoreServiceImp implements StoreService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Message.STORE_NOT_FOUND);
         }
         Store store = storeOptional.get();
-        store.setStoreStatus(0);
+        store.setStoreStatus(store.getStoreStatus() == 1 ? 0 : 1);
         storeRepository.save(store);
         return ResponseEntity.status(HttpStatus.OK).body(Message.DELETE_STORE_SUCCESS);
     }
@@ -83,8 +84,9 @@ public class StoreServiceImp implements StoreService {
     public void registerUser (StoreRequest storeRequest, Store store) {
         store.setStoreAddress(storeRequest.getStoreAddress());
         store.setStoreName(storeRequest.getStoreName());
-        store.setStoreStatus(1);
+        store.setStoreStatus(storeRequest.getStoreStatus());
         store.setStoreUpdatedDate(today);
         store.setStoreCreatedDate(today);
     }
+
 }

@@ -27,12 +27,18 @@ public class CategoryController {
         return categoryService.createCategory(categoryRequest, request);
     }
     @GetMapping("/list")
-    public ResponseEntity<?> getCategporyList (@RequestParam  Long storeId, HttpServletRequest request) {
+    public ResponseEntity<?> getCategporyList (@RequestParam(required = false)  Long storeId, HttpServletRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String authority = authentication.getAuthorities().iterator().next().getAuthority();
         // Logic xử lý khi người dùng là ADMIN
         boolean isForUser = !"ADMIN".equals(authority);
-        return categoryService.getCategoryList(storeId, isForUser, request);
+        return categoryService.getCategoryList(storeId, isForUser, request, false);
+    }
+    
+    @GetMapping("/list_for_user")
+    public ResponseEntity<?> getCategporyListForUser (@RequestParam(required = false)  Long storeId, HttpServletRequest request) {
+
+        return categoryService.getCategoryList(storeId, true, request, false);
     }
 
     @PutMapping("/update/{id}")

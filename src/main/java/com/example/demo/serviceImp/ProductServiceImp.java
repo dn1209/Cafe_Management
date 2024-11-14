@@ -93,7 +93,8 @@ public class ProductServiceImp implements ProductService {
         if (product == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.PRODUCT_NOT_FOUND);
         }
-        productRepository.deleteProductWithStatus(product.getProductId());
+        product.setPrdStatus(product.getPrdStatus() == 1 ? 0 : 1);
+        productRepository.save(product);
         return ResponseEntity.status(HttpStatus.OK).body(Message.CREATE_PRODUCT_SUCCESS);
     }
 

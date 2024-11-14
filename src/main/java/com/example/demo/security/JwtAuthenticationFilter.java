@@ -25,7 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private CustomUserDetailService customUserDetailsService;
-    private static final List<String> PUBLIC_URLS = Arrays.asList("/api/register", "/api/login");
+    private static final List<String> PUBLIC_URLS = Arrays.asList("/api/login");
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,

@@ -18,6 +18,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -52,7 +53,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/register", "/api/login").permitAll()
+                        .requestMatchers( "/api/login").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
@@ -61,18 +62,27 @@ public class SecurityConfig {
         return http.build();
     }
     @Bean
-    CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("http://127.0.0.1:5500"));
+        // Cho phép tất cả các nguồn (origins)
+        configuration.setAllowedOrigins(Collections.singletonList("*"));
+
+        // Cho phép tất cả phương thức HTTP
         configuration.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE", "PUT"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "XSRF-TOKEN", "X-XSRF-TOKEN", "Cookie"));
 
+        // Cho phép tất cả headers
+        configuration.setAllowedHeaders(List.of("*"));
+
+        // Cho phép gửi thông tin xác thực (cookies, credentials)
+        configuration.setAllowCredentials(false);  // Tắt cho phép cookies trong yêu cầu
+
+        // Cấu hình nguồn CORS
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
         source.registerCorsConfiguration("/**", configuration);
 
         return source;
     }
+
 
 }

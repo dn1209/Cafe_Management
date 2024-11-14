@@ -35,6 +35,12 @@ public class CategoryController {
         return categoryService.getCategoryList(storeId, isForUser, request);
     }
 
+    @GetMapping("/list_for_user")
+    public ResponseEntity<?> getCategporyListForUser (@RequestParam(required = false)  Long storeId, HttpServletRequest request) {
+
+        return categoryService.getCategoryList(storeId, true, request);
+    }
+
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateCategory(@PathVariable Long id, @RequestBody String name) {
         if (name == null || name.isEmpty()) {

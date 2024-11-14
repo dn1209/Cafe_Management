@@ -194,7 +194,6 @@ public class UserServiceImp implements UserService {
                 storeId,
                 today
         );
-        user.setDisplayName(registerRequest.getDisplayName());
         user.setUserRole( registerRequest.getUserRole());
         userRepository.save(user);
     }

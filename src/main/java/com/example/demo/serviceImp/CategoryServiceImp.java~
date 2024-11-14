@@ -77,7 +77,7 @@ public class CategoryServiceImp implements CategoryService {
         if (category == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.CATEGORY_NOT_FOUND);
         }
-        category.setStatus(category.getStatus() == 1 ? 0 : 1);
+        category.setStatus(0);
         categoryRepository.save(category);
         return ResponseEntity.status(HttpStatus.OK).body(Message.DELETE_CATEGORY_SUCCESS);
     }

@@ -27,13 +27,22 @@ public class ProductController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> getProductList (@ModelAttribute ProductFilterRequest filter, Pageable pageable, HttpServletRequest request) {
+    public ResponseEntity<?> getProductList (@ModelAttribute ProductFilterRequest filter,
+                                             Pageable pageable,
+                                             HttpServletRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String authority = authentication.getAuthorities().iterator().next().getAuthority();
         // Logic xử lý khi người dùng là ADMIN
         boolean isForUser = !"ADMIN".equals(authority);
 
         return productService.getProductList(filter, pageable, isForUser, request);
+    }
+
+    @GetMapping("/list_for_user")
+    public ResponseEntity<?> getProductListForUser (@ModelAttribute ProductFilterRequest filter,
+                                                    Pageable pageable,
+                                                    HttpServletRequest request) {
+        return productService.getProductList(filter, pageable, true, request);
     }
 
     @GetMapping("/detail/{id}")
