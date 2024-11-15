@@ -22,7 +22,21 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
     @Query("UPDATE Bill b set b.orderStatus = 0 WHERE b.billId = ?1")
     void updateBillsByBillId(Long bId);
 
-    @Query("SELECT SUM(b.totalPrice) FROM Bill b WHERE b.sellDate BETWEEN :startDate AND :endDate")
-    BigDecimal calculateRevenueBetweenDates(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+    @Query("SELECT DATE(b.sellDate) as date, SUM(b.totalPrice) as revenue " +
+            "FROM Bill b " +
+            "WHERE b.sellDate BETWEEN :startDate AND :endDate " +
+            "GROUP BY DATE(b.sellDate) " +
+            "ORDER BY DATE(b.sellDate)")
+    List<Object[]> calculateRevenueBetweenDates(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT FUNCTION('MONTH', b.sellDate) as month, SUM(b.totalPrice) as revenue FROM Bill b WHERE b.storeId = :storeId AND b.sellDate BETWEEN :startDate AND :endDate order by b.sellDate")
+    List<Object[]> calculateRevenueByStore(@Param("storeId") Long storeId, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    // Doanh thu của tất cả cửa hàng trong khoảng thời gian
+    @Query("SELECT FUNCTION('DATE', b.sellDate) as date, b.storeId, SUM(b.totalPrice) as revenue FROM Bill b WHERE b.sellDate BETWEEN :startDate AND :endDate GROUP BY b.storeId")
+    List<Object[]> calculateRevenueForAllStores(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+
+
 
 }

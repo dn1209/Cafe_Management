@@ -24,8 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
@@ -177,30 +176,135 @@ public class BillServiceImp implements BillService {
     }
 
     @Override
-    public ResponseEntity<?> getRevenue(LocalDateTime startDate, LocalDateTime endDate) {
-        BigDecimal totalPrice = BigDecimal.ZERO;
-        totalPrice = billRepository.calculateRevenueBetweenDates(startDate, endDate);
+    public ResponseEntity<?> getRevenue() {
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
 
-        return ResponseEntity.status(HttpStatus.OK).body(totalPrice);
-    }
+        List<Object[]> dailyRevenueData = billRepository.calculateRevenueBetweenDates(startOfDay, endOfDay);
 
-    @Override
-    public ResponseEntity<?> getRevenueByStore(Long storeId, LocalDateTime startDate, LocalDateTime endDate) {
-        BigDecimal totalPrice = BigDecimal.ZERO;
-        totalPrice = billRepository.calculateRevenueByStore(storeId, startDate, endDate);
-        return ResponseEntity.status(HttpStatus.OK).body(totalPrice);
-    }
+        List<Map.Entry<LocalDate, BigDecimal>> revenues = new ArrayList<>();
 
-    @Override
-    public ResponseEntity<?> getRevenueForAllStores(LocalDateTime startDate, LocalDateTime endDate) {
-        List<Object[]> results = billRepository.calculateRevenueForAllStores(startDate, endDate);
-        Map<Long, BigDecimal> revenueByStore = new HashMap<>();
-        for (Object[] result : results) {
-            Long storeId = (Long) result[0];
-            BigDecimal revenue = (BigDecimal) result[1];
-            revenueByStore.put(storeId, revenue);
+        for (Object[] row : dailyRevenueData) {
+            java.sql.Date sqlDate = (java.sql.Date) row[0];
+            LocalDate date = sqlDate.toLocalDate(); // Chuyển đổi java.sql.Date sang LocalDate
+            BigDecimal revenue = (BigDecimal) row[1];
+            revenues.add(new AbstractMap.SimpleEntry<>(date, revenue));
         }
-        return ResponseEntity.status(HttpStatus.OK).body(revenueByStore);
+
+        return ResponseEntity.status(HttpStatus.OK).body(revenues);
     }
 
+    @Override
+    public ResponseEntity<?> getRevenueByStore(Long storeId) {
+        YearMonth currentMonth = YearMonth.now();
+        LocalDateTime startOfMonth = currentMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfMonth = currentMonth.atEndOfMonth().atTime(LocalTime.MAX);
+
+        List<Object[]> monthlyRevenueData = billRepository.calculateRevenueByStore(storeId, startOfMonth, endOfMonth);
+
+        Map<String, Object> revenueData = new HashMap<>();
+        List<String> labels = new ArrayList<>();
+        List<BigDecimal> revenueList = new ArrayList<>();
+
+        for (Object[] result : monthlyRevenueData) {
+            String monthLabel = "Tháng " + result[0]; // Ví dụ: "Tháng 1"
+            BigDecimal revenue = (BigDecimal) result[1];
+
+            labels.add(monthLabel);
+            revenueList.add(revenue);
+        }
+
+        revenueData.put("labels", labels);
+        revenueData.put("revenue", revenueList);
+
+        return ResponseEntity.status(HttpStatus.OK).body(revenueData);
+    }
+
+    @Override
+    public ResponseEntity<?> getRevenueForAllStores() {
+        List<Object[]> monthlyRevenueData = billRepository.calculateMonthlyRevenueForCurrentYear();
+
+        // Tạo một Map để lưu doanh thu của từng tháng, mặc định là 0
+        Map<Integer, Double> monthlyRevenueMap = new HashMap<>();
+        for (int month = 1; month <= 12; month++) {
+            monthlyRevenueMap.put(month, 0.0);
+        }
+
+        // Cập nhật doanh thu cho các tháng có dữ liệu
+        for (Object[] entry : monthlyRevenueData) {
+            Integer month = (Integer) entry[0];
+            BigDecimal revenue = (BigDecimal) entry[1];
+            monthlyRevenueMap.put(month, revenue.doubleValue()); // Chuyển BigDecimal sang Double
+        }
+
+        // Chuyển Map thành danh sách để trả về, giữ đúng định dạng
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (int month = 1; month <= 12; month++) {
+            Map<String, Object> monthData = new HashMap<>();
+            monthData.put("month", month);
+            monthData.put("revenue", monthlyRevenueMap.get(month));
+            result.add(monthData);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @Override
+    public ResponseEntity<?> getMonthlyRevenue(String dateInput) {
+        LocalDate today = LocalDate.now();
+
+        // Lấy ngày đầu tuần (Thứ Hai)
+        LocalDate startOfWeek = today.with(DayOfWeek.MONDAY);
+
+        // Lấy ngày cuối tuần (Chủ Nhật)
+        LocalDate endOfWeek = today.with(DayOfWeek.SUNDAY);
+
+        // Nếu dateInput không null hoặc rỗng, chuyển đổi nó thành LocalDate
+        final LocalDate inputDate = (dateInput != null && !dateInput.isEmpty()) ? LocalDate.parse(dateInput) : null; // Đảm bảo final
+
+        // Nếu inputDate không null, chỉ lấy doanh thu của ngày đó
+        LocalDateTime startOfDay = inputDate != null ? inputDate.atStartOfDay() : startOfWeek.atStartOfDay();
+        LocalDateTime endOfDay = inputDate != null ? inputDate.atTime(LocalTime.MAX) : endOfWeek.atTime(LocalTime.MAX);
+
+        // Lấy dữ liệu doanh thu trong khoảng thời gian (tuần hoặc ngày theo dateInput)
+        List<Object[]> dailyRevenueData = billRepository.calculateRevenueBetweenDates(startOfDay, endOfDay);
+
+        // Tạo danh sách chứa doanh thu theo ngày trong khoảng thời gian
+        final List<Map.Entry<LocalDate, BigDecimal>> revenues = new ArrayList<>(); // Đặt final ở đây
+
+        // Lặp qua từng dòng dữ liệu trả về từ repository
+        for (Object[] row : dailyRevenueData) {
+            java.sql.Date sqlDate = (java.sql.Date) row[0];
+            LocalDate date = sqlDate.toLocalDate();  // Chuyển đổi java.sql.Date sang LocalDate
+            BigDecimal revenue = (BigDecimal) row[1];
+            revenues.add(new AbstractMap.SimpleEntry<>(date, revenue));
+        }
+
+        // Nếu không có dữ liệu doanh thu cho ngày nào, trả về doanh thu là 0
+        // Tạo một danh sách từ ngày đầu tuần đến cuối tuần hoặc ngày chỉ định và gán giá trị doanh thu là 0 cho các ngày không có dữ liệu
+        for (LocalDate date = startOfWeek; date.isBefore(endOfWeek.plusDays(1)); date = date.plusDays(1)) {
+            boolean found = false;
+            for (Map.Entry<LocalDate, BigDecimal> entry : revenues) {
+                if (entry.getKey().equals(date)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                revenues.add(new AbstractMap.SimpleEntry<>(date, BigDecimal.ZERO));  // Thêm doanh thu là 0 cho các ngày không có dữ liệu
+            }
+        }
+
+        // Nếu có ngày inputDate, chỉ trả về doanh thu của ngày đó, nếu không thì trả về doanh thu của cả tuần
+        if (inputDate != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    revenues.stream()
+                            .filter(entry -> entry.getKey().equals(inputDate)) // Sử dụng lambda để lọc doanh thu của ngày inputDate
+                            .collect(Collectors.toList())
+            );
+        } else {
+            return ResponseEntity.status(HttpStatus.OK).body(revenues);
+        }
+    }
 }

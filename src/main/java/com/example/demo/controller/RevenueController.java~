@@ -1,0 +1,35 @@
+package com.example.demo.controller;
+
+import com.example.demo.service.BillService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@RestController
+@RequestMapping("/api/revenue")
+@CrossOrigin(origins = "*")
+public class RevenueController {
+    @Autowired
+    private BillService billService;
+
+    // API lấy doanh thu hàng ngày trong khoảng thời gian mặc định nếu không truyền tham số
+    @GetMapping("/day")
+    public ResponseEntity<?> getRevenue() {
+        return billService.getRevenue();
+    }
+
+    // API lấy doanh thu hàng tháng cho cửa hàng cụ thể
+    @GetMapping("/store")
+    public ResponseEntity<?> getRevenueByStore(@RequestParam("storeId") Long storeId) {
+        return billService.getRevenueByStore(storeId);
+    }
+
+    // API lấy doanh thu hàng tháng cho tất cả các cửa hàng
+    @GetMapping("/all-stores")
+    public ResponseEntity<?> getRevenueForAllStores() {
+        return billService.getRevenueForAllStores();
+    }
+}

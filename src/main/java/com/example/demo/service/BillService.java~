@@ -8,13 +8,15 @@ import org.springframework.http.ResponseEntity;
 import java.time.LocalDateTime;
 
 public interface BillService {
-     ResponseEntity<?> addNew(BillRequest billRequest, HttpServletRequest request);
+     ResponseEntity<?> addNew (BillRequest billRequest, HttpServletRequest request);
 
-     ResponseEntity<?> getBillList( HttpServletRequest request, Pageable pageable);
+     ResponseEntity<?> getBillList ( HttpServletRequest request, Pageable pageable);
 
-     ResponseEntity<?> getRevenue(LocalDateTime startDate, LocalDateTime endDate);
+     ResponseEntity<?> getRevenue ();
 
-     ResponseEntity<?> getRevenueByStore(Long storeId, LocalDateTime startDate, LocalDateTime endDate);
+     ResponseEntity<?> getRevenueByStore (Long storeId);
 
-     ResponseEntity<?> getRevenueForAllStores
+     ResponseEntity<?> getRevenueForAllStores ();
+
+      ResponseEntity<?> getMonthlyRevenue();
 }

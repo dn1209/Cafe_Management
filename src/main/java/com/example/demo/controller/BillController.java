@@ -37,14 +37,10 @@ public class BillController {
     }
 
     @GetMapping("/revenue")
-    public ResponseEntity<?> getRevenue(
-            @RequestParam("startDate") String startDateStr,
-            @RequestParam("endDate") String endDateStr) {
+    public ResponseEntity<?> getRevenue(@RequestParam(required = false) String date) {
 
-        LocalDateTime startDate = LocalDateTime.parse(startDateStr);
-        LocalDateTime endDate = LocalDateTime.parse(endDateStr);
 
-        return billService.getRevenue(startDate, endDate);
+        return billService.getMonthlyRevenue(date);
     }
 
     @GetMapping("/store")
@@ -56,18 +52,15 @@ public class BillController {
         LocalDateTime startDate = LocalDateTime.parse(startDateStr);
         LocalDateTime endDate = LocalDateTime.parse(endDateStr);
 
-        return billService.getRevenueByStore(storeId, startDate, endDate);
+        return billService.getRevenueByStore(storeId);
     }
 
     @GetMapping("/all-stores")
-    public ResponseEntity<?> getRevenueForAllStores(
-            @RequestParam("startDate") String startDateStr,
-            @RequestParam("endDate") String endDateStr) {
+    public ResponseEntity<?> getRevenueForAllStores() {
 
-        LocalDateTime startDate = LocalDateTime.parse(startDateStr);
-        LocalDateTime endDate = LocalDateTime.parse(endDateStr);
 
-        return billService.getRevenueForAllStores(startDate, endDate);
+        return billService.getRevenueForAllStores();
     }
+
 
 }

@@ -12,9 +12,11 @@ public interface BillService {
 
      ResponseEntity<?> getBillList ( HttpServletRequest request, Pageable pageable);
 
-     ResponseEntity<?> getRevenue (LocalDateTime startDate, LocalDateTime endDate);
+     ResponseEntity<?> getRevenue ();
 
-     ResponseEntity<?> getRevenueByStore (Long storeId, LocalDateTime startDate, LocalDateTime endDate);
+     ResponseEntity<?> getRevenueByStore (Long storeId);
 
-     ResponseEntity<?> getRevenueForAllStores (LocalDateTime startDate, LocalDateTime endDate);
+     ResponseEntity<?> getRevenueForAllStores ();
+
+      ResponseEntity<?> getMonthlyRevenue(String date);
 }
