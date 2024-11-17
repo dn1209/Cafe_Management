@@ -13,6 +13,8 @@ public interface UserService {
 
     ResponseEntity<?> registerUser(RegisterRequest registerRequest);
 
+    ResponseEntity<?> registerAdmin (RegisterRequest registerRequest);
+
     ResponseEntity<?> login(LoginRequest loginRequest);
 
     ResponseEntity<?> getAllUsers(Long storeId);

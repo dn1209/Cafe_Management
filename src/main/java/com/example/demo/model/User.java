@@ -36,6 +36,9 @@ public class User {
     @Column(name = "display_name")
     private String displayName;
 
+    @Column(name = "user_phone")
+    private String userPhone;
+
     @Column(name = "user_status")
     private int userStatus;
 

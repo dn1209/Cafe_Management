@@ -16,4 +16,6 @@ public class RegisterRequest {
     private Long storeId;
     @NotNull
     private short userRole;
+    @NotBlank
+    private String userPhone;
 }

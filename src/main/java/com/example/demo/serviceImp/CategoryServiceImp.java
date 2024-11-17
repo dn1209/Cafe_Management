@@ -34,10 +34,6 @@ public class CategoryServiceImp implements CategoryService {
 
     @Override
     public ResponseEntity<?> createCategory(CategoryRequest categoryRequest, HttpServletRequest request) {
-        if (authenticateService.getStoreIdByUserId(request) == null) {
-            //logger
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.STORE_NOT_FOUND);
-        }
         Store store = findStoreById(categoryRequest.getStoreId());
         if (store == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.STORE_NOT_FOUND);
@@ -84,7 +80,6 @@ public class CategoryServiceImp implements CategoryService {
 
     private Specification<Category> buildSpecification(Long filter, boolean isForUser, HttpServletRequest request) {return (root, query, criteriaBuilder) -> {
         Predicate predicate = criteriaBuilder.conjunction();
-        Long storeId = authenticateService.getStoreIdByUserId(request);
 
         if (filter != null) {
             predicate = criteriaBuilder.and(
@@ -93,6 +88,7 @@ public class CategoryServiceImp implements CategoryService {
         }
 
         if (isForUser){
+            Long storeId = authenticateService.getStoreIdByUserId(request);
             predicate = criteriaBuilder.and(
                     predicate,
                     criteriaBuilder.equal(root.get("storeId"), storeId));

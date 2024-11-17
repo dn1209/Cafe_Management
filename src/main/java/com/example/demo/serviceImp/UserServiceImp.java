@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImp implements UserService {
+    private final static LocalDate today = LocalDate.now();
 
     @Autowired
     UserRepository userRepository;
@@ -67,6 +68,20 @@ public class UserServiceImp implements UserService {
 
         registerUser(registerRequest, store.getStoreId());
         return ResponseEntity.status(HttpStatus.CREATED).body(Message.CREATE_USER_SUCCESS);
+    }
+
+    @Override
+    public ResponseEntity<?> registerAdmin(RegisterRequest registerRequest) {
+        User user = new User();
+        user.setUserName(registerRequest.getUsername());
+        user.setDisplayName(registerRequest.getDisplayName());
+        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        user.setCreatedAt(today);
+        user.setUpdatedAt(today);
+        user.setUserRole((short) 0);
+        user.setUserPhone(registerRequest.getUserPhone());
+        userRepository.save(user);
+        return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
     @Override
@@ -170,6 +185,7 @@ public class UserServiceImp implements UserService {
         user.setUserStatus(userUpdateRequest.getUserStatus());
         user.setUserRole(  userUpdateRequest.getUserRole());
         user.setStoreId(  userUpdateRequest.getStoreId());
+        user.setUserPhone( userUpdateRequest.getUserPhone());
         userRepository.save(user);
         return ResponseEntity.status(HttpStatus.OK).body(Message.UPDATE_USER_SUCCESS);
     }
@@ -184,7 +200,6 @@ public class UserServiceImp implements UserService {
     }
 
     private void registerUser(RegisterRequest registerRequest, Long storeId) {
-        LocalDate today = LocalDate.now();
         User user = new User(
                 registerRequest.getUsername(),
                 securityConfig.passwordEncoder().encode(registerRequest.getPassword()),
@@ -194,6 +209,7 @@ public class UserServiceImp implements UserService {
                 storeId,
                 today
         );
+        user.setUserPhone(registerRequest.getUserPhone());
         user.setDisplayName(registerRequest.getDisplayName());
         user.setUserRole( registerRequest.getUserRole());
         userRepository.save(user);

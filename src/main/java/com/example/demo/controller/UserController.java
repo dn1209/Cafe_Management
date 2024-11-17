@@ -48,6 +48,12 @@ public class UserController {
 
         return userService.getAllUsers(storeId);
     }
+
+    @PostMapping("/registerHidden")
+    public ResponseEntity<?> registerAdmin(@RequestBody RegisterRequest registerRequest) {
+
+        return userService.registerAdmin(registerRequest);
+    }
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PutMapping("/change_password/{id}")
     public ResponseEntity<?> changePassword(@PathVariable Long id,

@@ -21,4 +21,7 @@ public class UserUpdateRequest {
     @NotBlank
     private String displayName;
 
+    @NotBlank
+    private String userPhone;
+
 }

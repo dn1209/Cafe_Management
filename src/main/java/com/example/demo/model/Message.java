@@ -17,7 +17,7 @@ public class Message {
     public static final String CREATE_PRODUCT_SUCCESS = "CREATE_PRODUCT_SUCCESS";
     public static final String PRODUCT_NOT_FOUND = "PRODUCT_NOT_FOUND";
     public static final String UPDATE_PRODUCT_SUCCESS = "UPDATE_PRODUCT_SUCCESS";
-
+    public static final String PRODUCT_NAME_EXISTED = "PRODUCT_NAME_EXISTED";
     //category
     public static final String CREATE_CATEGORY_SUCCESS = "CREATE_CATEGORY_SUCCESS";
     public static final String CATEGORY_NOT_FOUND = "CATEGORY_NOT_FOUND";

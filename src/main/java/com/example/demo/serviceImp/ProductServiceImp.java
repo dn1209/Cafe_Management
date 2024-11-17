@@ -39,6 +39,10 @@ public class ProductServiceImp implements ProductService {
     @Override
     public ResponseEntity<?> addNewProduct(ProductNewRequest productNewRequest, HttpServletRequest request) {
         Product product = new Product();
+        if (productRepository.existsByName(productNewRequest.getPrdName())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.PRODUCT_NAME_EXISTED);
+        }
+
         Category category = findCategoryById(productNewRequest.getCategoryId());
         if (category == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.CATEGORY_NOT_FOUND);
@@ -100,7 +104,6 @@ public class ProductServiceImp implements ProductService {
 
     private Specification<Product> buildSpecification(ProductFilterRequest filter, boolean isForUser, HttpServletRequest request) {return (root, query, criteriaBuilder) -> {
             Predicate predicate = criteriaBuilder.conjunction();
-            Long storeId = authenticateService.getStoreIdByUserId(request);
             if (filter != null) {
                 if (filter.getCategoryId() != null) {
                     predicate = criteriaBuilder.and(
@@ -123,6 +126,8 @@ public class ProductServiceImp implements ProductService {
                 }
             }
             if (isForUser){
+                Long storeId = authenticateService.getStoreIdByUserId(request);
+
                 predicate = criteriaBuilder.and(
                         predicate,
                         criteriaBuilder.equal(root.get("storeId"), storeId));
