@@ -27,13 +27,22 @@ public class ProductController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> getProductList (@ModelAttribute ProductFilterRequest filter, Pageable pageable, HttpServletRequest request) {
+    public ResponseEntity<?> getProductList (@ModelAttribute ProductFilterRequest filter,
+                                             Pageable pageable,
+                                             HttpServletRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String authority = authentication.getAuthorities().iterator().next().getAuthority();
         // Logic xử lý khi người dùng là ADMIN
         boolean isForUser = !"ADMIN".equals(authority);
 
         return productService.getProductList(filter, pageable, isForUser, request);
+    }
+
+    @GetMapping("/list_for_user")
+    public ResponseEntity<?> getProductListForUser (@ModelAttribute ProductFilterRequest filter,
+                                                    Pageable pageable,
+                                                    HttpServletRequest request) {
+        return productService.getProductList(filter, pageable, true, request);
     }
 
     @GetMapping("/detail/{id}")
@@ -43,15 +52,15 @@ public class ProductController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateProduct (@PathVariable Long id,
-                                             @RequestBody ProductNewRequest productNewRequest,
-                                        HttpServletRequest request) {
+                                             @RequestBody ProductNewRequest productNewRequest) {
 
-        return productService.updateProduct(id, productNewRequest, request);
+        return productService.updateProduct(id, productNewRequest);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteProduct (@PathVariable Long id) {
-        return productService.deleteProduct(id);
-    }
+    @PutMapping("/toggle_status/{id}")
+    public ResponseEntity<?> updateStatus (@PathVariable Long id) {
 
+        return productService.updateStatus(id);
+    }
+    
 }

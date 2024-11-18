@@ -44,9 +44,12 @@ public class StoreController {
         }
         return storeService.updateStore(id, storeRequest);
     }
+
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteStore(@PathVariable Long id) {
-        return storeService.deleteStore(id);
+    @PutMapping("/toggle_status/{id}")
+    public ResponseEntity<?> updateStatus(@PathVariable Long id) {
+
+        return storeService.updateStatus(id);
     }
+
 }

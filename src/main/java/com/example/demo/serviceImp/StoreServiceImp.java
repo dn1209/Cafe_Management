@@ -70,7 +70,7 @@ public class StoreServiceImp implements StoreService {
     }
 
     @Override
-    public ResponseEntity<?> deleteStore(Long id) {
+    public ResponseEntity<?> updateStatus(Long id) {
         Optional<Store> storeOptional = storeRepository.findStoreById(id);
         if (storeOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Message.STORE_NOT_FOUND);
@@ -78,7 +78,7 @@ public class StoreServiceImp implements StoreService {
         Store store = storeOptional.get();
         store.setStoreStatus(store.getStoreStatus() == 1 ? 0 : 1);
         storeRepository.save(store);
-        return ResponseEntity.status(HttpStatus.OK).body(Message.DELETE_STORE_SUCCESS);
+        return ResponseEntity.status(HttpStatus.OK).body(Message.UPDATE_STORE_SUCCESS);
     }
 
     public void registerUser (StoreRequest storeRequest, Store store) {

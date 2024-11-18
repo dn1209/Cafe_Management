@@ -24,7 +24,7 @@ public class Message {
     public static final String UPDATE_CATEGORY_SUCCESS = "UPDATE_CATEGORY_SUCCESS";
     public static final String DELETE_CATEGORY_SUCCESS = "DELETE_CATEGORY_SUCCESS";
     public static final String INVALID_CATEGORY_NAME = "INVALID_CATEGORY_NAME";
-
+    public static final String UPDATE_STATUS_SUCCESS = "UPDATE_STATUS_SUCCESS";
     //bill
     public static final String CREATE_BILL_SUCCESS = "CREATE_BILL_SUCCESS";
     public static final String BILL_NOT_FOUND = "BILL_NOT_FOUND";

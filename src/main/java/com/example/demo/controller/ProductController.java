@@ -52,15 +52,15 @@ public class ProductController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateProduct (@PathVariable Long id,
-                                             @RequestBody ProductNewRequest productNewRequest,
-                                        HttpServletRequest request) {
+                                             @RequestBody ProductNewRequest productNewRequest) {
 
-        return productService.updateProduct(id, productNewRequest, request);
+        return productService.updateProduct(id, productNewRequest);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteProduct (@PathVariable Long id) {
-        return productService.deleteProduct(id);
+    @PutMapping("/toggle_status/{id}")
+    public ResponseEntity<?> updateStatus (@PathVariable Long id) {
+
+        return productService.updateStatus(id);
     }
 
 }

@@ -13,6 +13,6 @@ public interface StoreService {
 
     ResponseEntity<?> updateStore(Long id, StoreRequest storeRequest);
 
-    ResponseEntity<?> deleteStore(Long id);
+    ResponseEntity<?> updateStatus(Long id);
 
 }

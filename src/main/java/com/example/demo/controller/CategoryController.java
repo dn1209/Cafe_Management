@@ -49,9 +49,10 @@ public class CategoryController {
         return categoryService.updateCategory(id, name);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteCategory(@PathVariable Long id) {
-        return categoryService.deleteCategory(id);
+    @PutMapping("/toggle_status/{id}")
+    public ResponseEntity<?> updateStatus(@PathVariable Long id) {
+
+        return categoryService.updateStatus(id);
     }
 
 }

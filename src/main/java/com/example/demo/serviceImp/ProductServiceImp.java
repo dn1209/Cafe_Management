@@ -76,7 +76,7 @@ public class ProductServiceImp implements ProductService {
     }
 
     @Override
-    public ResponseEntity<?> updateProduct(Long id, ProductNewRequest productNewRequest, HttpServletRequest request) {
+    public ResponseEntity<?> updateProduct(Long id, ProductNewRequest productNewRequest) {
         Product product = productRepository.findById(id).get();
         if (product == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.PRODUCT_NOT_FOUND);
@@ -90,16 +90,16 @@ public class ProductServiceImp implements ProductService {
         productRepository.save(product);
         return ResponseEntity.status(HttpStatus.OK).body(Message.UPDATE_PRODUCT_SUCCESS);
     }
-    @Transactional
+
     @Override
-    public ResponseEntity<?> deleteProduct(Long id) {
+    public ResponseEntity<?> updateStatus(Long id) {
         Product product = productRepository.findById(id).get();
         if (product == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.PRODUCT_NOT_FOUND);
         }
         product.setPrdStatus(product.getPrdStatus() == 1 ? 0 : 1);
         productRepository.save(product);
-        return ResponseEntity.status(HttpStatus.OK).body(Message.CREATE_PRODUCT_SUCCESS);
+        return ResponseEntity.status(HttpStatus.OK).body(Message.UPDATE_PRODUCT_SUCCESS);
     }
 
     private Specification<Product> buildSpecification(ProductFilterRequest filter, boolean isForUser, HttpServletRequest request) {return (root, query, criteriaBuilder) -> {

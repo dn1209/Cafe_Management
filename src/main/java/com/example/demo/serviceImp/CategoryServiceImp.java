@@ -68,14 +68,14 @@ public class CategoryServiceImp implements CategoryService {
     }
 
     @Override
-    public ResponseEntity<?> deleteCategory(Long id) {
+    public ResponseEntity<?> updateStatus(Long id) {
         Category category = categoryRepository.getById(id);
         if (category == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.CATEGORY_NOT_FOUND);
         }
         category.setStatus(category.getStatus() == 1 ? 0 : 1);
         categoryRepository.save(category);
-        return ResponseEntity.status(HttpStatus.OK).body(Message.DELETE_CATEGORY_SUCCESS);
+        return ResponseEntity.status(HttpStatus.OK).body(Message.UPDATE_STATUS_SUCCESS);
     }
 
     private Specification<Category> buildSpecification(Long filter, boolean isForUser, HttpServletRequest request) {return (root, query, criteriaBuilder) -> {

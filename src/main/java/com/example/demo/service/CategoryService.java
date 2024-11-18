@@ -11,5 +11,6 @@ public interface CategoryService {
 
     ResponseEntity<?> updateCategory(Long id, String name);
 
-    ResponseEntity<?> deleteCategory(Long id);
+    ResponseEntity<?> updateStatus(Long id);
+
 }
