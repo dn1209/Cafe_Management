@@ -4,6 +4,7 @@ import com.example.demo.model.Bill;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface BillRepository extends JpaRepository<Bill, Long> {
+public interface BillRepository extends JpaRepository<Bill, Long>, JpaSpecificationExecutor<Bill> {
     @Query("SELECT b FROM Bill b WHERE b.storeId = ?1")
     Page<Bill> findByStoreId(Long storeId, Pageable pageable);
 

@@ -83,4 +83,9 @@ public class UserController {
 
         return userService.detailUser(id);
     }
+
+    @GetMapping("/checking_register")
+    public ResponseEntity<?> getCHeckingUser () {
+        return userService.checkingRegister();
+    }
 }

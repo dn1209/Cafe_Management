@@ -25,4 +25,6 @@ public interface UserService {
 
     ResponseEntity<?> detailUser(Long id);
 
+    ResponseEntity<?> checkingRegister();
+
 }

@@ -19,11 +19,7 @@ public class BillResponse {
 
     private BigDecimal totalPrice;
 
-    private BigDecimal customerPay;
-
     private int totalQuantity;
-
-    private BigDecimal changeAmount;
 
     private String saleName;
 

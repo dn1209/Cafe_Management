@@ -48,6 +48,12 @@ public class UserController {
 
         return userService.getAllUsers(storeId);
     }
+
+    @PostMapping("/registerHidden")
+    public ResponseEntity<?> registerAdmin(@RequestBody RegisterRequest registerRequest) {
+
+        return userService.registerAdmin(registerRequest);
+    }
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PutMapping("/change_password/{id}")
     public ResponseEntity<?> changePassword(@PathVariable Long id,
@@ -72,9 +78,13 @@ public class UserController {
         return userService.updateUser(id, userUpdateRequest);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PutMapping("/detail/{id}")
+    @GetMapping("/detail/{id}")
     public ResponseEntity<?> getDetailUser (@PathVariable Long id) {
 
         return userService.detailUser(id);
+    }
+
+    public ResponseEntity<?> getCHeckingUser () {
+        return null;
     }
 }

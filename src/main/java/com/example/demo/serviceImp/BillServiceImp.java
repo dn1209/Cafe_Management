@@ -1,9 +1,6 @@
 package com.example.demo.serviceImp;
 
-import com.example.demo.model.Bill;
-import com.example.demo.model.DetailBill;
-import com.example.demo.model.Message;
-import com.example.demo.model.Product;
+import com.example.demo.model.*;
 import com.example.demo.payload.request.bill.BillRequest;
 import com.example.demo.payload.request.bill.DetailBillRequest;
 import com.example.demo.payload.response.BillResponse;
@@ -14,11 +11,13 @@ import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.AuthenticateService;
 import com.example.demo.service.BillService;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -54,19 +53,28 @@ public class BillServiceImp implements BillService {
         if (saleId == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.USER_NOT_FOUND);
         }
-        if (billRequest.getDetailBill() == null && billRequest.getDetailBill().isEmpty()) {
+        if (billRequest.getDetailBill() == null || billRequest.getDetailBill().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.DETAIL_BILL_NOT_FOUND);
         }
         List<Product> productListToBill = new ArrayList<>();
         Map<Product, Integer> productQuantityMap = new HashMap<>();
         for (DetailBillRequest detailBillRequest : billRequest.getDetailBill()) {
-            Product product = productRepository.findByIdAndStore(Long.valueOf(detailBillRequest.getProductId()),storeId).get();
-            if (product == null) {
-                //logger
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Message.PRODUCT_NOT_FOUND);
+            try {
+                Long productId = detailBillRequest.getProductId(); // Nếu detailBillRequest trả về String
+                Optional<Product> productOptional = productRepository.findByIdAndStore(productId, storeId);
+
+                if (productOptional.isEmpty()) {
+                    // Log thông tin nếu cần
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Message.PRODUCT_NOT_FOUND);
+                }
+
+                Product product = productOptional.get();
+                productListToBill.add(product);
+                productQuantityMap.put(product, detailBillRequest.getQuantity());
+            } catch (NumberFormatException e) {
+                // Xử lý lỗi nếu productId không phải là số
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Product ID format");
             }
-            productListToBill.add(product);
-            productQuantityMap.put(product, detailBillRequest.getQuantity());
         }
 
         Bill bill = new Bill();
@@ -82,8 +90,6 @@ public class BillServiceImp implements BillService {
         bill.setSellDate(today);
         bill.setNotes(billRequest.getNotes());
         bill.setOrderStatus(1);
-        BigDecimal bigDecimalValue = new BigDecimal(billRequest.getCustomerPay());
-        bill.setCustomerPay(bigDecimalValue);
         bill.setStoreId(storeId);
         bill.setSaleId(saleId);
         BigDecimal totalPrice = BigDecimal.ZERO;
@@ -95,7 +101,6 @@ public class BillServiceImp implements BillService {
         }
         bill.setTotalPrice(totalPrice);
         bill.setTotalQuantity(productList.size());
-        bill.setChangeAmount(bill.getCustomerPay().subtract(totalPrice));
     }
 
     private void saveBillDetail (List<Product> productList,Bill bill,Map<Product, Integer> productQuantityMap) {
@@ -110,37 +115,69 @@ public class BillServiceImp implements BillService {
     }
 
     @Override
-    public ResponseEntity<?> getBillList(HttpServletRequest request, Pageable pageable) {
+    public ResponseEntity<?> getBillList(HttpServletRequest request, Pageable pageable, boolean isForUser, Long storeIdParam) {
         Long userId = authenticateService.getUserIdByToken(request);
         if (userId == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.USER_NOT_FOUND);
         }
-
-        Long storeId = authenticateService.getStoreIdByUserId(request);
-        if (storeId == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.STORE_NOT_FOUND);
+        Page<Bill> billPage;
+        Specification<Bill> spec = buildSpecification(storeIdParam);
+        if (isForUser) {
+            Long storeId = authenticateService.getStoreIdByUserId(request);
+            if (storeId == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.STORE_NOT_FOUND);
+            }
+             billPage = billRepository.findByStoreId(storeId, pageable);
+        } else {
+             billPage = billRepository.findAll(spec, pageable);
         }
-        Page<Bill> billPage = billRepository.findByStoreId(storeId, pageable);
+
 
         if (billPage.isEmpty()) {
             return ResponseEntity.status(HttpStatus.OK).body("No bills found");
         }
 
-        List<DetailBill> allDetailBills = detailBillRepository.findByBillIdIn(billPage.stream().collect(Collectors.toList()).stream()
-                        .map(Bill::getBillId)
-                        .collect(Collectors.toList())).stream()
-                .collect(Collectors.toList());
+        List<DetailBill> allDetailBills = detailBillRepository.findByBillIdIn(
+                        billPage.stream()
+                                .toList() // Thay thế Collectors.toList()
+                                .stream()
+                                .map(Bill::getBillId)
+                                .toList() // Thay thế Collectors.toList()
+                ).stream()
+                .toList();
 
         Map<Long, List<DetailBill>> detailBillMap = allDetailBills.stream()
                 .collect(Collectors.groupingBy(DetailBill::getBillId));
         //allDetailBills co danh sach cac detail bill va dung groupingBy de map cac detail bill co dung billId voi nhau vao 1 map
 
-        Map<Long, Product> productMap = productRepository.findByProductIdInAndStoreId(allDetailBills.stream()
-                        .map(DetailBill::getProductId)
-                        .distinct()
-                        .collect(Collectors.toList()), storeId)
-                .stream()
-                .collect(Collectors.toMap(Product::getProductId, Function.identity()));
+        Map<Long, Product> productMap;
+
+        if (isForUser) {
+            Long storeId = authenticateService.getStoreIdByUserId(request);
+            productMap = productRepository.findByProductIdInAndStoreId(allDetailBills.stream()
+                            .map(DetailBill::getProductId)
+                            .distinct()
+                            .collect(Collectors.toList()), storeId)
+                    .stream()
+                    .collect(Collectors.toMap(Product::getProductId, Function.identity()));
+        } else {
+            if (storeIdParam != null) {
+                productMap = productRepository.findByProductIdInAndStoreId(allDetailBills.stream()
+                                .map(DetailBill::getProductId)
+                                .distinct()
+                                .collect(Collectors.toList()), storeIdParam)
+                        .stream()
+                        .collect(Collectors.toMap(Product::getProductId, Function.identity()));
+            } else {
+                productMap = productRepository.findByProductIdIn(allDetailBills.stream()
+                                .map(DetailBill::getProductId)
+                                .distinct()
+                                .collect(Collectors.toList()))
+                        .stream()
+                        .collect(Collectors.toMap(Product::getProductId, Function.identity()));
+            }
+
+        }
 
         List<BillResponse> billResponseList = billPage.stream().map(bill -> {
             BillResponse billResponse = BillResponse.builder()
@@ -150,8 +187,6 @@ public class BillServiceImp implements BillService {
                     .notes(bill.getNotes())
                     .totalQuantity(bill.getTotalQuantity())
                     .totalPrice(bill.getTotalPrice())
-                    .customerPay(bill.getCustomerPay())
-                    .changeAmount(bill.getChangeAmount())
                     .orderStatus(bill.getOrderStatus())
                     .build();
 
@@ -249,6 +284,21 @@ public class BillServiceImp implements BillService {
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+    private Specification<Bill> buildSpecification(Long storeId) {return (root, query, criteriaBuilder) -> {
+        Predicate predicate = criteriaBuilder.conjunction();
+
+        if (storeId != null) {
+
+            predicate = criteriaBuilder.and(
+                    predicate,
+                    criteriaBuilder.equal(root.get("storeId"), storeId));
+
+        }
+        query.orderBy(criteriaBuilder.asc(criteriaBuilder.toLong(root.get("storeId"))));
+
+        return predicate;
+        };
+    }
 
     @Override
     public ResponseEntity<?> getMonthlyRevenue(String dateInput) {
@@ -307,4 +357,5 @@ public class BillServiceImp implements BillService {
             return ResponseEntity.status(HttpStatus.OK).body(revenues);
         }
     }
+
 }

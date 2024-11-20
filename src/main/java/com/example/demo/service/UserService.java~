@@ -13,6 +13,8 @@ public interface UserService {
 
     ResponseEntity<?> registerUser(RegisterRequest registerRequest);
 
+    ResponseEntity<?> registerAdmin (RegisterRequest registerRequest);
+
     ResponseEntity<?> login(LoginRequest loginRequest);
 
     ResponseEntity<?> getAllUsers(Long storeId);
@@ -20,5 +22,7 @@ public interface UserService {
     ResponseEntity<?> changePassword(Long id, ChangePasswordUser changePasswordUser);
 
     ResponseEntity<?> updateUser(Long id, UserUpdateRequest userUpdateRequest);
+
+    ResponseEntity<?> detailUser(Long id);
 
 }

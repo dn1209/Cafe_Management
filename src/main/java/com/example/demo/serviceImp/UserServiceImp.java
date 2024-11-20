@@ -72,14 +72,16 @@ public class UserServiceImp implements UserService {
 
     @Override
     public ResponseEntity<?> registerAdmin(RegisterRequest registerRequest) {
+        if (userRepository.count() != 0) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Message.USER_ALREADY_EXISTS);
+        }
         User user = new User();
         user.setUserName(registerRequest.getUsername());
-        user.setDisplayName(registerRequest.getDisplayName());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         user.setCreatedAt(today);
         user.setUpdatedAt(today);
         user.setUserRole((short) 0);
-        user.setUserPhone(registerRequest.getUserPhone());
+        user.setUserStatus(1);
         userRepository.save(user);
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
@@ -197,6 +199,16 @@ public class UserServiceImp implements UserService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Message.USER_NOT_FOUND);
         }
         return ResponseEntity.status(HttpStatus.OK).body(user);
+    }
+
+    @Override
+    public ResponseEntity<?> checkingRegister() {
+        if (userRepository.count() == 0) {
+            return ResponseEntity.status(HttpStatus.OK).body(true);
+        }
+        else {
+            return ResponseEntity.status(HttpStatus.OK).body(false);
+        }
     }
 
     private void registerUser(RegisterRequest registerRequest, Long storeId) {

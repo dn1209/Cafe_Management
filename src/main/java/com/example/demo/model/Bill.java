@@ -33,14 +33,8 @@ public class Bill {
     @Column(name = "total_price", columnDefinition = "numeric(15, 0)")
     private BigDecimal totalPrice;
 
-    @Column(name = "customer_pay", columnDefinition = "numeric(15, 0)")
-    private BigDecimal customerPay;
-
     @Column(name = "total_quantity")
     private int totalQuantity;
-
-    @Column(name = "change_amount", columnDefinition = "numeric(15, 0)")
-    private BigDecimal changeAmount;
 
     @Column(name = "store_id")
     private Long storeId;
