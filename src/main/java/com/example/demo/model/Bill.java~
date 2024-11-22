@@ -24,7 +24,7 @@ public class Bill {
     @Column(name = "bill_id")
     private long billId;
 
-    @Column(name = "sell_date" , columnDefinition = "DATETIME")
+    @Column(name = "sell_date" )
     private LocalDateTime sellDate;
 
     @Column(name = "notes")

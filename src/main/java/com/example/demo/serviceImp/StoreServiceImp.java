@@ -1,16 +1,11 @@
 package com.example.demo.serviceImp;
 
-import com.example.demo.exception.UserNotFoundException;
-import com.example.demo.model.Category;
 import com.example.demo.model.Message;
 import com.example.demo.model.Store;
 import com.example.demo.payload.request.StoreRequest;
 import com.example.demo.repository.StoreRepository;
 import com.example.demo.service.StoreService;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,5 @@
 package com.example.demo.repository;
 
-import com.example.demo.model.Category;
 import com.example.demo.model.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -21,7 +20,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     @Query("SELECT u FROM Product u WHERE u.prdStatus = ?1 AND u.storeId = ?2 AND LOWER(u.productName) LIKE %?3% AND u.categoryId = ?4")
     List<Product> findProductsByStatusAndKeywordAndManu(int status, Long sId, String keyword, Long id);
 
-    @Query(value = "SELECT COALESCE(MAX(product_id), 0) FROM Product", nativeQuery = true)
+    @Query(value = "SELECT COALESCE(MAX(product_id), 0) FROM product", nativeQuery = true)
     Long getLastProductId();
 
     @Query("SELECT u from Product u WHERE u.productId = ?1 and  u.storeId = ?2")
@@ -38,8 +37,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     boolean existsById(Long id);
 
     //true neu ton tai va false neu khong ton tai
-    @Query("SELECT CASE WHEN EXISTS (SELECT 1 FROM Product u WHERE u.productName = :name) THEN true ELSE false END")
-    boolean existsByName(String name);
+    @Query("SELECT CASE WHEN EXISTS (SELECT 1 FROM Product u WHERE u.productName = :name and u.storeId = :storeId) THEN true ELSE false END")
+    boolean existsByName(String name, Long storeId);
 
     @Modifying
     @Query("UPDATE Product u set u.prdStatus = 0 WHERE u.productId = ?1 ")

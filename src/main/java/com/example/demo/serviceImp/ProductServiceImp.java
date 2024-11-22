@@ -11,7 +11,6 @@ import com.example.demo.service.AuthenticateService;
 import com.example.demo.service.ProductService;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,10 +37,7 @@ public class ProductServiceImp implements ProductService {
 
     @Override
     public ResponseEntity<?> addNewProduct(ProductNewRequest productNewRequest, HttpServletRequest request) {
-        Product product = new Product();
-        if (productRepository.existsByName(productNewRequest.getPrdName())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.PRODUCT_NAME_EXISTED);
-        }
+
 
         Category category = findCategoryById(productNewRequest.getCategoryId());
         if (category == null) {
@@ -50,6 +46,10 @@ public class ProductServiceImp implements ProductService {
         Store store = findStoreById(productNewRequest.getStoreId());
         if (store == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.STORE_NOT_FOUND);
+        }
+        Product product = new Product();
+        if (productRepository.existsByName(productNewRequest.getPrdName(),store.getStoreId())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.PRODUCT_NAME_EXISTED);
         }
         product.setCategoryId(category.getCategoryId());
         product.setStoreId(store.getStoreId());

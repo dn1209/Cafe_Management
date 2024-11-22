@@ -1,10 +1,6 @@
 package com.example.demo.serviceImp;
 
-import com.example.demo.model.Product;
-import com.example.demo.payload.request.product.ProductFilterRequest;
-import com.example.demo.payload.request.user.UserFilterRequest;
 import com.example.demo.security.SecurityConfig;
-import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.security.JwtTokenProvider;
 import com.example.demo.model.Message;
 import com.example.demo.model.Store;
@@ -19,7 +15,6 @@ import com.example.demo.repository.StoreRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.UserService;
 import jakarta.persistence.criteria.Predicate;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;

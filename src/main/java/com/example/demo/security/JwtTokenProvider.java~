@@ -17,13 +17,13 @@ public class JwtTokenProvider {
     private final long JWT_EXPIRATION = 1800000L;
 
     public String generateToken(User userDetails) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION);
+//        Date now = new Date();
+//        Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION);
         // Tạo chuỗi json web token từ id của user.
         return Jwts.builder()
                 .setSubject(Long.toString(userDetails.getUserId()))
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
+//                .setIssuedAt(now)
+//                .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
                 .compact();
     }
