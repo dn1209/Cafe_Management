@@ -20,10 +20,10 @@ public class BillController {
     private BillService billService;
 
     @PostMapping("/add_new")
-    public ResponseEntity<?> addNew (@RequestBody BillRequest billRequest,
-                                     HttpServletRequest request,
-                                     BindingResult bindingResult) {
-        if (bindingResult.hasErrors()){
+    public ResponseEntity<?> addNew(@RequestBody BillRequest billRequest,
+                                    HttpServletRequest request,
+                                    BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bindingResult.getAllErrors());
         }
 
@@ -31,13 +31,13 @@ public class BillController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> getListBill(@RequestParam(required = false)  Long storeId, HttpServletRequest request,@PageableDefault(size = 12) Pageable pageable) {
+    public ResponseEntity<?> getListBill(@RequestParam(required = false) Long storeId, HttpServletRequest request, @PageableDefault(size = 12) Pageable pageable) {
 
         return billService.getBillList(request, pageable, false, storeId);
     }
 
     @GetMapping("/list_for_user")
-    public ResponseEntity<?> getListBillForUser(HttpServletRequest request,@PageableDefault(size = 12) Pageable pageable) {
+    public ResponseEntity<?> getListBillForUser(HttpServletRequest request, @PageableDefault(size = 12) Pageable pageable) {
 
         return billService.getBillList(request, pageable, true, null);
     }

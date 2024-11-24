@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.util.Date;
 
 @Component
 @Slf4j
@@ -27,6 +26,7 @@ public class JwtTokenProvider {
                 .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
                 .compact();
     }
+
     public Long getUserIdFromJWT(String token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(JWT_SECRET).build()
@@ -35,11 +35,12 @@ public class JwtTokenProvider {
 
         return Long.parseLong(claims.getSubject());
     }
+
     public boolean validateToken(String authToken) throws JwtInvalidException {
         try {
             Jwts.parser().setSigningKey(JWT_SECRET).build().parseClaimsJws(authToken);
             return true;
-        }catch (SignatureException ex) {
+        } catch (SignatureException ex) {
             throw new JwtInvalidException("JWT signature does not match");
         } catch (MalformedJwtException ex) {
             log.error("Invalid JWT token");
