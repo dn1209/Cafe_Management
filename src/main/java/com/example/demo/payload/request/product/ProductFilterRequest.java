@@ -8,5 +8,4 @@ public class ProductFilterRequest {
 
     private String keyword;
 
-    private Long storeId;
 }

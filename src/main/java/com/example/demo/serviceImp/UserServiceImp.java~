@@ -122,9 +122,12 @@ public class UserServiceImp implements UserService {
                     user.getUserId(),
                     user.getUserName(),
                     user.getDisplayName(),
-                    listRoles.get(0),
-                    jwt
-                    );
+                    user.getUserStatus(),
+                    user.getCreatedAt(),
+                    user.getUpdatedAt(),
+                    user.getLogined(),
+                    jwt,
+                    listRoles.get(0));
 
             return ResponseEntity.status(HttpStatus.OK).body(loginResponse);
         } catch (Exception e) {

@@ -47,7 +47,7 @@ public class CategoryServiceImp implements CategoryService {
     public ResponseEntity<?> getCategoryForUser() {
         Specification<Category> spec = buildSpecification();
         List<Category> categoryList = categoryRepository.findAll(spec);
-
+        
         return ResponseEntity.status(HttpStatus.OK).body(categoryList);
     }
 

@@ -8,6 +8,4 @@ public class CategoryRequest {
     @NotBlank
     private String categoryName;
 
-    @NotBlank
-    private Long storeId;
 }

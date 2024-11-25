@@ -12,15 +12,7 @@ import java.time.LocalDateTime;
 @Data
 public class Bill {
     @Id
-    @SequenceGenerator(
-            name = "orders_sequence",
-            sequenceName = "orders_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "orders_sequence"
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "bill_id")
     private long billId;
 
@@ -35,9 +27,6 @@ public class Bill {
 
     @Column(name = "total_quantity")
     private int totalQuantity;
-
-    @Column(name = "store_id")
-    private Long storeId;
 
     @Column(name = "sale_id")
     private Long saleId;

@@ -26,5 +26,5 @@ public interface BillRepository extends JpaRepository<Bill, Long>, JpaSpecificat
             "GROUP BY DATE(b.sellDate) " +
             "ORDER BY DATE(b.sellDate)")
     List<Object[]> calculateRevenueBetweenDates(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
-
+    
 }

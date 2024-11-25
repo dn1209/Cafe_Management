@@ -9,4 +9,9 @@ public class UserNotFoundException extends RuntimeException{
         super(message);
         logger.error(message);
     }
+
+    public UserNotFoundException(String message, Throwable cause) {
+        super(message, cause);
+        logger.error(message, cause);
+    }
 }

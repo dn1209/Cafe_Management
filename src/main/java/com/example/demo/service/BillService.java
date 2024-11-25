@@ -8,13 +8,7 @@ import org.springframework.http.ResponseEntity;
 public interface BillService {
      ResponseEntity<?> addNew (BillRequest billRequest, HttpServletRequest request);
 
-     ResponseEntity<?> getBillList ( HttpServletRequest request, Pageable pageable, boolean isForUser, Long storeId);
-
-     ResponseEntity<?> getRevenue ();
-
-     ResponseEntity<?> getRevenueByStore (Long storeId);
-
-     ResponseEntity<?> getRevenueForAllStores ();
+     ResponseEntity<?> getBillList ( HttpServletRequest request, Pageable pageable);
 
       ResponseEntity<?> getMonthlyRevenue(String date);
 }

@@ -30,13 +30,9 @@ public class Product {
 
     @Column(name = "prd_sell_price", columnDefinition = "numeric(15, 0)")
     private BigDecimal prdSellPrice;
-    
 
     @Column(name = "category_id")
     private Long categoryId;
-
-    @Column(name = "store_id")
-    private Long storeId;
 
     @Column(name = "prd_status")
     private int prdStatus;

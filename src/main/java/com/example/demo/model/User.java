@@ -15,15 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 public class User {
     @Id
-    @SequenceGenerator(
-            name = "user_sequence",
-            sequenceName = "user_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "user_sequence"
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private long userId;
 
@@ -51,9 +43,6 @@ public class User {
     @Column(name = "user_role")
     private Short userRole;
 
-    @Column(name = "store_id")
-    private Long storeId;
-
     @Column(name = "logined")
     private LocalDate logined;
 
@@ -62,14 +51,12 @@ public class User {
                 int userStatus,
                 LocalDate createdAt,
                 LocalDate updatedAt,
-                Long storeId,
                 LocalDate logined) {
         this.userName = userName;
         this.password = password;
         this.userStatus = userStatus;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
-        this.storeId = storeId;
         this.logined = logined;
 
     }

@@ -10,15 +10,7 @@ import java.math.BigDecimal;
 @Data
 public class DetailBill {
     @Id
-    @SequenceGenerator(
-            name = "detailBill_sequence",
-            sequenceName = "detailBill_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "detailBill_sequence"
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "detail_bill_id")
     private long detailBillId;
 
