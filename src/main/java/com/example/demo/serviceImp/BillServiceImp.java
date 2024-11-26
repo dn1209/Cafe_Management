@@ -175,6 +175,35 @@ public class BillServiceImp implements BillService {
     }
 
     @Override
+    public ResponseEntity<?> getRevenueForAllStores() {
+        List<Object[]> monthlyRevenueData = billRepository.calculateMonthlyRevenueForCurrentYear();
+
+        // Tạo một Map để lưu doanh thu của từng tháng, mặc định là 0
+        Map<Integer, Double> monthlyRevenueMap = new HashMap<>();
+        for (int month = 1; month <= 12; month++) {
+            monthlyRevenueMap.put(month, 0.0);
+        }
+
+        // Cập nhật doanh thu cho các tháng có dữ liệu
+        for (Object[] entry : monthlyRevenueData) {
+            Integer month = (Integer) entry[0];
+            BigDecimal revenue = (BigDecimal) entry[1];
+            monthlyRevenueMap.put(month, revenue.doubleValue()); // Chuyển BigDecimal sang Double
+        }
+
+        // Chuyển Map thành danh sách để trả về, giữ đúng định dạng
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (int month = 1; month <= 12; month++) {
+            Map<String, Object> monthData = new HashMap<>();
+            monthData.put("month", month);
+            monthData.put("revenue", monthlyRevenueMap.get(month));
+            result.add(monthData);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @Override
     public ResponseEntity<?> getMonthlyRevenue(String dateInput) {
         LocalDate today = LocalDate.now();
 

@@ -16,15 +16,18 @@ import java.util.List;
 @Repository
 public interface BillRepository extends JpaRepository<Bill, Long>, JpaSpecificationExecutor<Bill> {
 
-    @Modifying
-    @Query("UPDATE Bill b set b.orderStatus = 0 WHERE b.billId = ?1")
-    void updateBillsByBillId(Long bId);
-
     @Query("SELECT DATE(b.sellDate) as date, SUM(b.totalPrice) as revenue " +
             "FROM Bill b " +
             "WHERE b.sellDate BETWEEN :startDate AND :endDate " +
             "GROUP BY DATE(b.sellDate) " +
             "ORDER BY DATE(b.sellDate)")
     List<Object[]> calculateRevenueBetweenDates(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT MONTH(b.sellDate) as month, SUM(b.totalPrice) as revenue " +
+            "FROM Bill b " +
+            "WHERE YEAR(b.sellDate) = YEAR(CURRENT_DATE) " +
+            "GROUP BY MONTH(b.sellDate) " +
+            "ORDER BY MONTH(b.sellDate)")
+    List<Object[]> calculateMonthlyRevenueForCurrentYear();
 
 }

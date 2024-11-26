@@ -44,4 +44,12 @@ public class BillController {
         return billService.getMonthlyRevenue(date);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @GetMapping("/all-stores")
+    public ResponseEntity<?> getRevenueForAllStores() {
+
+
+        return billService.getRevenueForAllStores();
+    }
+
 }

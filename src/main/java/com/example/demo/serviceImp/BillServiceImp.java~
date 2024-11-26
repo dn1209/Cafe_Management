@@ -109,7 +109,7 @@ public class BillServiceImp implements BillService {
     }
 
     @Override
-    public ResponseEntity<?> getBillList(HttpServletRequest request, Pageable pageable, boolean isForUser, Long storeIdParam) {
+    public ResponseEntity<?> getBillList(HttpServletRequest request, Pageable pageable) {
         Long userId = authenticateService.getUserIdByToken(request);
         if (userId == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.USER_NOT_FOUND);

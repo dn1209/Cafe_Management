@@ -122,8 +122,8 @@ public class UserServiceImp implements UserService {
                     user.getUserId(),
                     user.getUserName(),
                     user.getDisplayName(),
-                    listRoles.get(0),
-                    jwt
+                    jwt,
+                    listRoles.get(0)
                     );
 
             return ResponseEntity.status(HttpStatus.OK).body(loginResponse);
