@@ -10,15 +10,7 @@ import java.time.LocalDate;
 @Data
 public class Product {
     @Id
-    @SequenceGenerator(
-            name = "product_sequence",
-            sequenceName = "product_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "product_sequence"
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
     private Long productId;
 
@@ -33,9 +25,6 @@ public class Product {
 
     @Column(name = "category_id")
     private Long categoryId;
-
-    @Column(name = "store_id")
-    private Long storeId;
 
     @Column(name = "prd_status")
     private int prdStatus;

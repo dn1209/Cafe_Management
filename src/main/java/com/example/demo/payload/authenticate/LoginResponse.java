@@ -7,41 +7,31 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 public class LoginResponse {
-    private long userId;
+    private long id;
 
-    private String userName;
+    private String username;
 
-    private String displayName;
+    private String name;
 
     private int userStatus;
 
-    private LocalDate createdAt;
+    private String expired;
 
-    private LocalDate updatedAt;
 
-    private LocalDate logined;
+    private String token;
 
-    private String tokenLogin;
-
-    private String userRole;
+    private String role;
 
     public LoginResponse(long userId,
                          String userName,
                          String displayName,
-                         int userStatus,
-                         LocalDate createdAt,
-                         LocalDate updatedAt,
-                         LocalDate logined,
                          String tokenLogin,
                          String userRole) {
-        this.userId = userId;
-        this.userName = userName;
-        this.displayName = displayName;
-        this.userStatus = userStatus;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.logined = logined;
-        this.tokenLogin = tokenLogin;
-        this.userRole = userRole;
+        this.id = userId;
+        this.username = userName;
+        this.name = displayName;
+        this.role = userRole;
+        this.token = tokenLogin;
+        this.expired = "30 phút";
     }
 }

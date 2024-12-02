@@ -18,37 +18,39 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping("/add_new")
-    public ResponseEntity<?> createCategory(@RequestBody CategoryRequest categoryRequest, HttpServletRequest request) {
+    public ResponseEntity<?> createCategory(@RequestBody CategoryRequest categoryRequest) {
         if (categoryRequest == null || categoryRequest.getCategoryName().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.INVALID_CATEGORY_NAME);
         }
 
-        return categoryService.createCategory(categoryRequest, request);
+        return categoryService.createCategory(categoryRequest);
     }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/list")
-    public ResponseEntity<?> getCategporyList (@RequestParam(required = false)  Long storeId, HttpServletRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String authority = authentication.getAuthorities().iterator().next().getAuthority();
-        // Logic xử lý khi người dùng là ADMIN
-        boolean isForUser = !"ADMIN".equals(authority);
-        return categoryService.getCategoryList(storeId, isForUser, request);
+    public ResponseEntity<?> getCategporyList () {
+
+        return categoryService.getCategoryList();
     }
 
-    @GetMapping("/list_for_user")
-    public ResponseEntity<?> getCategporyListForUser (@RequestParam(required = false)  Long storeId, HttpServletRequest request) {
+    @GetMapping("/list-for-user")
+    public ResponseEntity<?> getCategoryListForUser () {
 
-        return categoryService.getCategoryList(storeId, true, request);
+        return categoryService.getCategoryForUser();
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateCategory(@PathVariable Long id, @RequestBody String name) {
-        if (name == null || name.isEmpty()) {
+    public ResponseEntity<?> updateCategory(@PathVariable Long id, @RequestBody CategoryRequest categoryRequest) {
+        if (categoryRequest == null || categoryRequest.getCategoryName().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.INVALID_CATEGORY_NAME);
         }
-        return categoryService.updateCategory(id, name);
+        return categoryService.updateCategory(id, categoryRequest.getCategoryName());
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PutMapping("/toggle_status/{id}")
     public ResponseEntity<?> updateStatus(@PathVariable Long id) {
 

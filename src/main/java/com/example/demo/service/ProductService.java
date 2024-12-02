@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 public interface ProductService {
     ResponseEntity<?> addNewProduct(ProductNewRequest productNewRequest, HttpServletRequest request);
 
-    ResponseEntity<?> getProductList(ProductFilterRequest productFilterRequest, Pageable pageable, boolean isForUser, HttpServletRequest request);
+    ResponseEntity<?> getProductList(ProductFilterRequest productFilterRequest, Pageable pageable);
+
+    ResponseEntity<?> getProductListForUser(ProductFilterRequest productFilterRequest, Pageable pageable);
 
     ResponseEntity<?> getDetailProduct(Long id);
 

@@ -7,13 +7,11 @@ import lombok.Data;
 @Data
 public class RegisterRequest {
     @NotBlank
-    private String username;
+    private String userName;
     @NotBlank
     private String password;
     @NotBlank
     private String displayName;
-    @NotNull
-    private Long storeId;
     @NotNull
     private short userRole;
     @NotBlank

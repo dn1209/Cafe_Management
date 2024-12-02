@@ -18,6 +18,10 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     Optional<Product> findById(Long id);
 
     List<Product> findByProductIdIn(List<Long> ids);
+
+    @Query("SELECT CASE WHEN EXISTS (SELECT 1 FROM Product u WHERE u.productId = :id) THEN true ELSE false END")
+    boolean existsById(Long id);
+
     //true neu ton tai va false neu khong ton tai
     @Query("SELECT CASE WHEN EXISTS (SELECT 1 FROM Product u WHERE u.productName = :name ) THEN true ELSE false END")
     boolean existsByName(String name);

@@ -51,21 +51,17 @@ public class ProductServiceImp implements ProductService {
 
     @Override
     public ResponseEntity<?> getProductList(ProductFilterRequest filter, Pageable pageable) {
-        Specification<Product> spec = buildSpecification(filter, false);
-        Page<Product> productList = productRepository.findAll(spec, pageable);
+        Page<Product> productList = productRepository.findAll(pageable);
 
         return ResponseEntity.status(HttpStatus.OK).body(productList);
     }
 
     @Override
-    public ResponseEntity<?> getProductListForUser(ProductFilterRequest filter, Pageable pageable) {
-        Specification<Product> spec = buildSpecification(filter, true);
-        Page<Product> productList = productRepository.findAll(spec, pageable);
-
-        return ResponseEntity.status(HttpStatus.OK).body(productList);
+    public ResponseEntity<?> getProductListForUser(ProductFilterRequest productFilterRequest, Pageable pageable) {
+        return null;
     }
 
-    private Specification<Product> buildSpecification(ProductFilterRequest filter, boolean isForUser) {return (root, query, criteriaBuilder) -> {
+    private Specification<Product> buildSpecification(ProductFilterRequest filter, boolean isForUser, HttpServletRequest request) {return (root, query, criteriaBuilder) -> {
         Predicate predicate = criteriaBuilder.conjunction();
         if (filter != null) {
             if (filter.getCategoryId() != null) {

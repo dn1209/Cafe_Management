@@ -20,7 +20,7 @@ public class Category {
             generator = "category_sequence"
     )
     @Column(name = "category_id")
-    private long categoryId;
+    private Long categoryId;
 
     @Column(name = "category_name")
     private String categoryName;
@@ -28,14 +28,8 @@ public class Category {
     @Column(name = "created_date")
     private LocalDate createdDate;
 
-    @Column(name = "store_id")
-    private Long storeId
-
-
     @Column(name = "status")
     private int status;
 
-    @Column(name = "store_code")
-    private int storeId;
 
 }

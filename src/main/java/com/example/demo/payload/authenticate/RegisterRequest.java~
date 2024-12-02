@@ -1,24 +1,19 @@
-package com.example.demo.payload.request.user;
+package com.example.demo.payload.authenticate;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class UserUpdateRequest {
+public class RegisterRequest {
     @NotBlank
-    private String userName;
-
-    @NotNull
-    private int userStatus;
-
-    @NotNull
-    private short userRole;
-
+    private String username;
+    @NotBlank
+    private String password;
     @NotBlank
     private String displayName;
-
+    @NotNull
+    private short userRole;
     @NotBlank
     private String userPhone;
-
 }

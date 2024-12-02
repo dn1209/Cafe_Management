@@ -1,10 +1,10 @@
 package com.example.demo.controller;
 
+import com.example.demo.security.JwtTokenProvider;
 import com.example.demo.payload.authenticate.LoginRequest;
 import com.example.demo.payload.authenticate.RegisterRequest;
 import com.example.demo.payload.request.user.ChangePasswordUser;
 import com.example.demo.payload.request.user.UserUpdateRequest;
-import com.example.demo.security.JwtTokenProvider;
 import com.example.demo.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,19 +33,17 @@ public class UserController {
 
         return userService.login(loginRequest);
     }
-
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
 
         return userService.registerUser(registerRequest);
     }
-
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/list")
-    public ResponseEntity<?> getAllUsers() {
+    public ResponseEntity<?> getAllUsers(@RequestParam(required = false)  Long storeId) {
 
-        return userService.getAllUsers();
+        return userService.getAllUsers(storeId);
     }
 
     @PostMapping("/registerHidden")
@@ -53,7 +51,6 @@ public class UserController {
 
         return userService.registerAdmin(registerRequest);
     }
-
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PutMapping("/change_password/{id}")
     public ResponseEntity<?> changePassword(@PathVariable Long id,
@@ -66,7 +63,6 @@ public class UserController {
 
         return userService.changePassword(id, changePasswordUser);
     }
-
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateUser(@PathVariable Long id,
@@ -78,16 +74,15 @@ public class UserController {
         }
         return userService.updateUser(id, userUpdateRequest);
     }
-
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/detail/{id}")
-    public ResponseEntity<?> getDetailUser(@PathVariable Long id) {
+    public ResponseEntity<?> getDetailUser (@PathVariable Long id) {
 
         return userService.detailUser(id);
     }
 
     @GetMapping("/checking_register")
-    public ResponseEntity<?> getCheckingUser() {
+    public ResponseEntity<?> getCheckingUser () {
         return userService.checkingRegister();
     }
 }

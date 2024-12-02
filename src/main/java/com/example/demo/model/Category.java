@@ -9,16 +9,7 @@ import java.time.LocalDate;
 @Data
 public class Category {
     @Id
-    @SequenceGenerator(
-            name = "category_sequence",
-            sequenceName = "category_sequence",
-            allocationSize = 1
-    )
-
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "category_sequence"
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_id")
     private Long categoryId;
 
@@ -27,9 +18,6 @@ public class Category {
 
     @Column(name = "created_date")
     private LocalDate createdDate;
-
-    @Column(name = "store_id")
-    private Long storeId;
 
     @Column(name = "status")
     private int status;

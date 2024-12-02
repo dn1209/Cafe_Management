@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 public interface AuthenticateService {
-    public Long getStoreIdByUserId(HttpServletRequest request);
 
     public Long getUserIdByToken(HttpServletRequest request);
 }

@@ -9,8 +9,6 @@ public interface CategoryService {
 
     ResponseEntity<?> getCategoryList();
 
-    ResponseEntity<?> getCategoryForUser();
-
     ResponseEntity<?> updateCategory(Long id, String name);
 
     ResponseEntity<?> updateStatus(Long id);
