@@ -55,7 +55,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PutMapping("/change_password/{id}")
+    @PutMapping("/change-password/{id}")
     public ResponseEntity<?> changePassword(@PathVariable Long id,
                                             @Valid @RequestBody ChangePasswordUser changePasswordUser,
                                             BindingResult bindingResult) {
@@ -86,7 +86,7 @@ public class UserController {
         return userService.detailUser(id);
     }
 
-    @GetMapping("/checking_register")
+    @GetMapping("/checking-register")
     public ResponseEntity<?> getCheckingUser() {
         return userService.checkingRegister();
     }

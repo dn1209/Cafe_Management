@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -51,7 +52,7 @@ public class ProductServiceImp implements ProductService {
 
     @Override
     public ResponseEntity<?> getProductList(ProductFilterRequest filter, Pageable pageable) {
-        Specification<Product> spec = buildSpecification(filter, false);
+        Specification<Product> spec = buildSpecification(filter, false,null);
         Page<Product> productList = productRepository.findAll(spec, pageable);
 
         return ResponseEntity.status(HttpStatus.OK).body(productList);
@@ -59,13 +60,15 @@ public class ProductServiceImp implements ProductService {
 
     @Override
     public ResponseEntity<?> getProductListForUser(ProductFilterRequest filter, Pageable pageable) {
-        Specification<Product> spec = buildSpecification(filter, true);
+        List<Long> categoryList = categoryRepository.getCategoriesByStatus().stream().map(Category::getCategoryId).toList();
+        Specification<Product> spec = buildSpecification(filter, true, categoryList);
         Page<Product> productList = productRepository.findAll(spec, pageable);
 
         return ResponseEntity.status(HttpStatus.OK).body(productList);
     }
 
-    private Specification<Product> buildSpecification(ProductFilterRequest filter, boolean isForUser) {return (root, query, criteriaBuilder) -> {
+    private Specification<Product> buildSpecification(ProductFilterRequest filter, boolean isForUser, List<Long> inactiveCategoryIds) {
+        return (root, query, criteriaBuilder) -> {
         Predicate predicate = criteriaBuilder.conjunction();
         if (filter != null) {
             if (filter.getCategoryId() != null) {
@@ -85,6 +88,12 @@ public class ProductServiceImp implements ProductService {
             predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("prdStatus"), 1));
 
         }
+            if (inactiveCategoryIds != null) {
+                predicate = criteriaBuilder.and(
+                        predicate,
+                        criteriaBuilder.not(root.get("categoryId").in(inactiveCategoryIds))
+                );
+            }
         return predicate;
     };
     }

@@ -14,14 +14,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api_products")
+@RequestMapping("/api-products")
 @CrossOrigin(origins = "*")
 public class ProductController {
     @Autowired
     ProductService productService;
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PostMapping("/add_new")
+    @PostMapping("/add-new")
     public ResponseEntity<?> addProduct (@Valid @RequestBody ProductNewRequest productNewRequest,
                                         HttpServletRequest request) {
 
@@ -57,7 +57,7 @@ public class ProductController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PutMapping("/toggle_status/{id}")
+    @PutMapping("/toggle-status/{id}")
     public ResponseEntity<?> updateStatus (@PathVariable Long id) {
 
         return productService.updateStatus(id);

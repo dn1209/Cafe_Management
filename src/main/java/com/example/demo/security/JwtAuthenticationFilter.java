@@ -25,17 +25,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private CustomUserDetailService customUserDetailsService;
-    private static final List<String> PUBLIC_URLS = Arrays.asList("/api/login", "/api/registerHidden", "/api/checking_register");
+    private List<String> PUBLIC_URLS = Arrays.asList("/api/login", "/api/registerHidden", "/api/checking-register");
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-//        String path = request.getRequestURI();
-//        if ("/api/login".equals(path) || "/api/register".equals(path)) {
-//            filterChain.doFilter(request, response);
-//            return;
-//        }
+
 
         String jwt = getJwtFromRequest(request);
         Long userId = jwtTokenProvider.getUserIdFromJWT(jwt);

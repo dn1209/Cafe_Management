@@ -15,16 +15,16 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/api_bill")
+@RequestMapping("/api-bill")
 public class BillController {
     @Autowired
     private BillService billService;
 
-    @PostMapping("/add_new")
-    public ResponseEntity<?> addNew(@RequestBody BillRequest billRequest,
-                                    HttpServletRequest request,
-                                    BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
+    @PostMapping("/add-new")
+    public ResponseEntity<?> addNew (@RequestBody BillRequest billRequest,
+                                     HttpServletRequest request,
+                                     BindingResult bindingResult) {
+        if (bindingResult.hasErrors()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bindingResult.getAllErrors());
         }
 
@@ -35,6 +35,12 @@ public class BillController {
     public ResponseEntity<?> getListBill(HttpServletRequest request,@PageableDefault(size = 12) Pageable pageable) {
 
         return billService.getBillList(request, pageable);
+    }
+    @GetMapping("/list-for-user")
+
+    public ResponseEntity<?> getListBillForUser(HttpServletRequest request,@PageableDefault(size = 12) Pageable pageable) {
+
+        return billService.getBillListForUser(request, pageable);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")

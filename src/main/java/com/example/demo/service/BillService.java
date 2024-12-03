@@ -10,6 +10,8 @@ public interface BillService {
 
      ResponseEntity<?> getBillList ( HttpServletRequest request, Pageable pageable);
 
+     ResponseEntity<?> getBillListForUser ( HttpServletRequest request, Pageable pageable);
+
      ResponseEntity<?> getMonthlyRevenue(String date);
 
      ResponseEntity<?> getRevenueForAllStores ();
