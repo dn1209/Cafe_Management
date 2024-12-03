@@ -51,6 +51,7 @@ public class BillServiceImp implements BillService {
         if (billRequest.getDetailBill() == null || billRequest.getDetailBill().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.DETAIL_BILL_NOT_FOUND);
         }
+        Bill bill = new Bill();
         List<Product> productListToBill = new ArrayList<>();
         Map<Product, Integer> productQuantityMap = new HashMap<>();
         for (DetailBillRequest detailBillRequest : billRequest.getDetailBill()) {
@@ -72,29 +73,27 @@ public class BillServiceImp implements BillService {
             }
         }
 
-        Bill bill = new Bill();
-        saveBill(bill, billRequest, saleId, productListToBill);
+        saveBill(bill, billRequest, saleId, productQuantityMap);
         bill = billRepository.save(bill);
         saveBillDetail(productListToBill,bill,productQuantityMap);
 
         return ResponseEntity.status(HttpStatus.OK).body(Message.CREATE_BILL_SUCCESS);
     }
 
-    private void saveBill(Bill bill, BillRequest billRequest, Long saleId, List<Product> productList){
+    private void saveBill(Bill bill, BillRequest billRequest, Long saleId, Map<Product, Integer> productList){
         LocalDateTime today = LocalDateTime.now();
         bill.setSellDate(today);
         bill.setNotes(billRequest.getNotes());
         bill.setOrderStatus(1);
         bill.setSaleId(saleId);
         BigDecimal totalPrice = BigDecimal.ZERO;
-
-        for (Product product : productList) {
-            BigDecimal prdSellPrice = product.getPrdSellPrice();
-
-            totalPrice = totalPrice.add(prdSellPrice);
-        }
+        totalPrice = productList.entrySet().stream().
+                map(entry -> entry.getKey().getPrdSellPrice().multiply(new BigDecimal(entry.getValue()))).
+                reduce(BigDecimal.ZERO, BigDecimal::add);
+        int totalQuantity = productList.entrySet().stream().mapToInt(entry -> entry.getValue()).sum();
+        bill.setTotalQuantity(totalQuantity);
         bill.setTotalPrice(totalPrice);
-        bill.setTotalQuantity(productList.size());
+
     }
 
     private void saveBillDetail (List<Product> productList,Bill bill,Map<Product, Integer> productQuantityMap) {
