@@ -1,6 +1,9 @@
 package com.example.demo.serviceImp;
 
-import com.example.demo.model.*;
+import com.example.demo.model.Bill;
+import com.example.demo.model.DetailBill;
+import com.example.demo.model.Message;
+import com.example.demo.model.Product;
 import com.example.demo.payload.request.bill.BillRequest;
 import com.example.demo.payload.request.bill.DetailBillRequest;
 import com.example.demo.payload.response.BillResponse;
@@ -11,19 +14,20 @@ import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.AuthenticateService;
 import com.example.demo.service.BillService;
-import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.*;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
@@ -42,6 +46,7 @@ public class BillServiceImp implements BillService {
     private DetailBillRepository detailBillRepository;
     @Autowired
     private UserRepository userRepository;
+
     @Override
     public ResponseEntity<?> addNew(BillRequest billRequest, HttpServletRequest request) {
         Long saleId = authenticateService.getUserIdByToken(request);
@@ -75,11 +80,12 @@ public class BillServiceImp implements BillService {
 
         saveBill(bill, billRequest, saleId, productQuantityMap);
         bill = billRepository.save(bill);
-        saveBillDetail(productListToBill,bill,productQuantityMap);
+        saveBillDetail(productListToBill, bill, productQuantityMap);
 
         return ResponseEntity.status(HttpStatus.OK).body(Message.CREATE_BILL_SUCCESS);
     }
 
+    private void saveBill(Bill bill, BillRequest billRequest, Long saleId, List<Product> productList) {
     private void saveBill(Bill bill, BillRequest billRequest, Long saleId, Map<Product, Integer> productList){
         LocalDateTime today = LocalDateTime.now();
         bill.setSellDate(today);
@@ -92,17 +98,25 @@ public class BillServiceImp implements BillService {
                 reduce(BigDecimal.ZERO, BigDecimal::add);
         int totalQuantity = productList.entrySet().stream().mapToInt(entry -> entry.getValue()).sum();
         bill.setTotalQuantity(totalQuantity);
+
+        for (Product product : productList) {
+            BigDecimal prdSellPrice = product.getPrdSellPrice();
+            BigDecimal quantity = BigDecimal.valueOf(billRequest.getDetailBill().getFirst().getQuantity());
+            totalPrice = totalPrice.add(prdSellPrice.multiply(quantity));
+        }
+
         bill.setTotalPrice(totalPrice);
 
     }
 
-    private void saveBillDetail (List<Product> productList,Bill bill,Map<Product, Integer> productQuantityMap) {
+    private void saveBillDetail(List<Product> productList, Bill bill, Map<Product, Integer> productQuantityMap) {
         for (Product product : productList) {
             DetailBill detailBill = new DetailBill();
             detailBill.setBillId(bill.getBillId());
             detailBill.setProductId(product.getProductId());
             detailBill.setQuantity(productQuantityMap.get(product));
-            detailBill.setPrice(product.getPrdSellPrice().multiply(new BigDecimal(detailBill.getQuantity())));
+            detailBill.setPrice(product.getPrdSellPrice().multiply(new BigDecimal(detailBill.getQuantity()))); // Need to fix
+//            System.out.println(product.getPrdSellPrice().multiply(new BigDecimal(detailBill.getQuantity())));
             detailBillRepository.save(detailBill);
         }
     }
