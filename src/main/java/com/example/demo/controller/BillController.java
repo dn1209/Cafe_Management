@@ -20,7 +20,7 @@ public class BillController {
     @Autowired
     private BillService billService;
 
-    @PostMapping("/add_new")
+    @PostMapping("/add-new")
     public ResponseEntity<?> addNew (@RequestBody BillRequest billRequest,
                                      HttpServletRequest request,
                                      BindingResult bindingResult) {

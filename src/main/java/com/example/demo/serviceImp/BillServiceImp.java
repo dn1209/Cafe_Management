@@ -333,7 +333,7 @@ public class BillServiceImp implements BillService {
 
             predicate = criteriaBuilder.and(
                     predicate,
-                    criteriaBuilder.equal(root.get("userId"), userId));
+                    criteriaBuilder.equal(root.get("saleId"), userId));
 
         }
 
