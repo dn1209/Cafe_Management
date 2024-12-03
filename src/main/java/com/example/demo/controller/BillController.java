@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/api_bill")
+@RequestMapping("/api-bill")
 public class BillController {
     @Autowired
     private BillService billService;
@@ -35,6 +35,12 @@ public class BillController {
     public ResponseEntity<?> getListBill(HttpServletRequest request,@PageableDefault(size = 12) Pageable pageable) {
 
         return billService.getBillList(request, pageable);
+    }
+    @GetMapping("/list-for-user")
+
+    public ResponseEntity<?> getListBillForUser(HttpServletRequest request,@PageableDefault(size = 12) Pageable pageable) {
+
+        return billService.getBillListForUser(request, pageable);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")

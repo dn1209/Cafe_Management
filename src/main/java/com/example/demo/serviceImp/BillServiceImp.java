@@ -174,6 +174,73 @@ public class BillServiceImp implements BillService {
     }
 
     @Override
+    public ResponseEntity<?> getBillListForUser(HttpServletRequest request, Pageable pageable) {
+        Long userId = authenticateService.getUserIdByToken(request);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.USER_NOT_FOUND);
+        }
+        Page<Bill> billPage;
+        Specification<Bill> spec = buildSpecification(userId);
+        billPage = billRepository.findAll(spec, pageable);
+
+        if (billPage.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.OK).body("No bills found");
+        }
+
+        List<DetailBill> allDetailBills = detailBillRepository.findByBillIdIn(
+                        billPage.stream()
+                                .toList() // Thay thế Collectors.toList()
+                                .stream()
+                                .map(Bill::getBillId)
+                                .toList() // Thay thế Collectors.toList()
+                ).stream()
+                .toList();
+
+        Map<Long, List<DetailBill>> detailBillMap = allDetailBills.stream()
+                .collect(Collectors.groupingBy(DetailBill::getBillId));
+        //allDetailBills co danh sach cac detail bill va dung groupingBy de map cac detail bill co dung billId voi nhau vao 1 map
+
+        Map<Long, Product> productMap;
+
+        productMap = productRepository.findByProductIdIn(allDetailBills.stream()
+                        .map(DetailBill::getProductId)
+                        .distinct()
+                        .collect(Collectors.toList()))
+                .stream()
+                .collect(Collectors.toMap(Product::getProductId, Function.identity()));
+
+        List<BillResponse> billResponseList = billPage.stream().map(bill -> {
+            BillResponse billResponse = BillResponse.builder()
+                    .billId(bill.getBillId())
+                    .sellDate(bill.getSellDate().format(formatter))
+                    .saleName(userRepository.getUserNameById(bill.getSaleId()) == null ? "" : userRepository.getUserNameById(bill.getSaleId()))
+                    .notes(bill.getNotes())
+                    .totalQuantity(bill.getTotalQuantity())
+                    .totalPrice(bill.getTotalPrice())
+                    .orderStatus(bill.getOrderStatus())
+                    .build();
+
+            List<DetailBillResponse> detailBillResponseList = new ArrayList<>();
+
+            detailBillMap.getOrDefault(bill.getBillId(), Collections.emptyList()).forEach(detailBill -> {
+                DetailBillResponse detailBillResponse = DetailBillResponse.builder()
+                        .detailBillId(detailBill.getDetailBillId())
+                        .productId(detailBill.getProductId())
+                        .productName(productMap.getOrDefault(detailBill.getProductId(), new Product()).getProductName())
+                        .quantity(detailBill.getQuantity())
+                        .price(detailBill.getPrice())
+                        .build();
+                detailBillResponseList.add(detailBillResponse);
+            });
+
+            billResponse.setDetailBill(detailBillResponseList);
+            return billResponse;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.status(HttpStatus.OK).body(new PageImpl<>(billResponseList, pageable, billPage.getTotalElements()));
+    }
+
+    @Override
     public ResponseEntity<?> getRevenueForAllStores() {
         List<Object[]> monthlyRevenueData = billRepository.calculateMonthlyRevenueForCurrentYear();
 
@@ -258,6 +325,20 @@ public class BillServiceImp implements BillService {
         } else {
             return ResponseEntity.status(HttpStatus.OK).body(revenues);
         }
+    }
+    private Specification<Bill> buildSpecification( Long userId) {return (root, query, criteriaBuilder) -> {
+        Predicate predicate = criteriaBuilder.conjunction();
+
+        if (userId != null) {
+
+            predicate = criteriaBuilder.and(
+                    predicate,
+                    criteriaBuilder.equal(root.get("userId"), userId));
+
+        }
+
+        return predicate;
+    };
     }
 
 }

@@ -13,13 +13,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api_category")
+@RequestMapping("/api-category")
 public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PostMapping("/add_new")
+    @PostMapping("/add-new")
     public ResponseEntity<?> createCategory(@RequestBody CategoryRequest categoryRequest) {
         if (categoryRequest == null || categoryRequest.getCategoryName().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.INVALID_CATEGORY_NAME);
@@ -51,7 +51,7 @@ public class CategoryController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @PutMapping("/toggle_status/{id}")
+    @PutMapping("/toggle-status/{id}")
     public ResponseEntity<?> updateStatus(@PathVariable Long id) {
 
         return categoryService.updateStatus(id);
