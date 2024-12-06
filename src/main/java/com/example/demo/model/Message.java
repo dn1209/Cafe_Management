@@ -1,5 +1,8 @@
 package com.example.demo.model;
 
+import java.util.Collections;
+import java.util.Map;
+
 public class Message {
     public static final String INVALID_PASSWORD = "INVALID_PASSWORD";
     public static final String INVALID_USER = "INVALID_USER";
@@ -17,10 +20,15 @@ public class Message {
     //category
     public static final String CREATE_CATEGORY_SUCCESS = "CREATE_CATEGORY_SUCCESS";
     public static final String CATEGORY_NOT_FOUND = "CATEGORY_NOT_FOUND";
+    public static final String CATEGORY_NAME_EXISTED = "CATEGORY_NAME_EXISTED";
     public static final String UPDATE_CATEGORY_SUCCESS = "UPDATE_CATEGORY_SUCCESS";
     public static final String INVALID_CATEGORY_NAME = "INVALID_CATEGORY_NAME";
     public static final String UPDATE_STATUS_SUCCESS = "UPDATE_STATUS_SUCCESS";
     //bill
     public static final String CREATE_BILL_SUCCESS = "CREATE_BILL_SUCCESS";
     public static final String DETAIL_BILL_NOT_FOUND = "DETAIL_BILL_NOT_FOUND";
+
+    public static Map<String, String> map(String message) {
+        return Collections.singletonMap("message", message);
+    }
 }

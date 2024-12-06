@@ -53,8 +53,6 @@ public class CategoryController {
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PutMapping("/toggle-status/{id}")
     public ResponseEntity<?> updateStatus(@PathVariable Long id) {
-
         return categoryService.updateStatus(id);
     }
-
 }

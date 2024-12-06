@@ -12,8 +12,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-
 @RestController
 @RequestMapping("/api-bill")
 public class BillController {
@@ -21,24 +19,25 @@ public class BillController {
     private BillService billService;
 
     @PostMapping("/add-new")
-    public ResponseEntity<?> addNew (@RequestBody BillRequest billRequest,
-                                     HttpServletRequest request,
-                                     BindingResult bindingResult) {
-        if (bindingResult.hasErrors()){
+    public ResponseEntity<?> addNew(@RequestBody BillRequest billRequest,
+                                    HttpServletRequest request,
+                                    BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bindingResult.getAllErrors());
         }
 
         return billService.addNew(billRequest, request);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/list")
-    public ResponseEntity<?> getListBill(HttpServletRequest request,@PageableDefault(size = 12) Pageable pageable) {
+    public ResponseEntity<?> getListBill(HttpServletRequest request, @PageableDefault(size = 12) Pageable pageable) {
 
         return billService.getBillList(request, pageable);
     }
-    @GetMapping("/list-for-user")
 
-    public ResponseEntity<?> getListBillForUser(HttpServletRequest request,@PageableDefault(size = 12) Pageable pageable) {
+    @GetMapping("/list-for-user")
+    public ResponseEntity<?> getListBillForUser(HttpServletRequest request, @PageableDefault(size = 12) Pageable pageable) {
 
         return billService.getBillListForUser(request, pageable);
     }

@@ -14,11 +14,13 @@ import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.AuthenticateService;
 import com.example.demo.service.BillService;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -51,10 +53,10 @@ public class BillServiceImp implements BillService {
     public ResponseEntity<?> addNew(BillRequest billRequest, HttpServletRequest request) {
         Long saleId = authenticateService.getUserIdByToken(request);
         if (saleId == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.USER_NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Message.map(Message.USER_NOT_FOUND));
         }
         if (billRequest.getDetailBill() == null || billRequest.getDetailBill().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.DETAIL_BILL_NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Message.map(Message.DETAIL_BILL_NOT_FOUND));
         }
         Bill bill = new Bill();
         List<Product> productListToBill = new ArrayList<>();
@@ -66,7 +68,7 @@ public class BillServiceImp implements BillService {
 
                 if (productOptional.isEmpty()) {
                     // Log thông tin nếu cần
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Message.PRODUCT_NOT_FOUND);
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Message.map(Message.PRODUCT_NOT_FOUND));
                 }
 
                 Product product = productOptional.get();
@@ -74,7 +76,7 @@ public class BillServiceImp implements BillService {
                 productQuantityMap.put(product, detailBillRequest.getQuantity());
             } catch (NumberFormatException e) {
                 // Xử lý lỗi nếu productId không phải là số
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Product ID format");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.map("Invalid Product ID format"));
             }
         }
 
@@ -82,11 +84,10 @@ public class BillServiceImp implements BillService {
         bill = billRepository.save(bill);
         saveBillDetail(productListToBill, bill, productQuantityMap);
 
-        return ResponseEntity.status(HttpStatus.OK).body(Message.CREATE_BILL_SUCCESS);
+        return ResponseEntity.status(HttpStatus.OK).body(Message.map(Message.CREATE_BILL_SUCCESS));
     }
 
-    private void saveBill(Bill bill, BillRequest billRequest, Long saleId, List<Product> productList) {
-    private void saveBill(Bill bill, BillRequest billRequest, Long saleId, Map<Product, Integer> productList){
+    private void saveBill(Bill bill, BillRequest billRequest, Long saleId, Map<Product, Integer> productList) {
         LocalDateTime today = LocalDateTime.now();
         bill.setSellDate(today);
         bill.setNotes(billRequest.getNotes());
@@ -96,14 +97,8 @@ public class BillServiceImp implements BillService {
         totalPrice = productList.entrySet().stream().
                 map(entry -> entry.getKey().getPrdSellPrice().multiply(new BigDecimal(entry.getValue()))).
                 reduce(BigDecimal.ZERO, BigDecimal::add);
-        int totalQuantity = productList.entrySet().stream().mapToInt(entry -> entry.getValue()).sum();
+        int totalQuantity = productList.values().stream().mapToInt(integer -> integer).sum();
         bill.setTotalQuantity(totalQuantity);
-
-        for (Product product : productList) {
-            BigDecimal prdSellPrice = product.getPrdSellPrice();
-            BigDecimal quantity = BigDecimal.valueOf(billRequest.getDetailBill().getFirst().getQuantity());
-            totalPrice = totalPrice.add(prdSellPrice.multiply(quantity));
-        }
 
         bill.setTotalPrice(totalPrice);
 
@@ -115,7 +110,7 @@ public class BillServiceImp implements BillService {
             detailBill.setBillId(bill.getBillId());
             detailBill.setProductId(product.getProductId());
             detailBill.setQuantity(productQuantityMap.get(product));
-            detailBill.setPrice(product.getPrdSellPrice().multiply(new BigDecimal(detailBill.getQuantity()))); // Need to fix
+            detailBill.setPrice(product.getPrdSellPrice()); // Need to fix
 //            System.out.println(product.getPrdSellPrice().multiply(new BigDecimal(detailBill.getQuantity())));
             detailBillRepository.save(detailBill);
         }
@@ -125,13 +120,13 @@ public class BillServiceImp implements BillService {
     public ResponseEntity<?> getBillList(HttpServletRequest request, Pageable pageable) {
         Long userId = authenticateService.getUserIdByToken(request);
         if (userId == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.USER_NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Message.map(Message.USER_NOT_FOUND));
         }
         Page<Bill> billPage;
         billPage = billRepository.findAll(pageable);
 
         if (billPage.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.OK).body("No bills found");
+            return ResponseEntity.status(HttpStatus.OK).body(Message.map("No bills found"));
         }
 
         List<DetailBill> allDetailBills = detailBillRepository.findByBillIdIn(
@@ -191,14 +186,14 @@ public class BillServiceImp implements BillService {
     public ResponseEntity<?> getBillListForUser(HttpServletRequest request, Pageable pageable) {
         Long userId = authenticateService.getUserIdByToken(request);
         if (userId == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message.USER_NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Message.map(Message.USER_NOT_FOUND));
         }
         Page<Bill> billPage;
         Specification<Bill> spec = buildSpecification(userId);
         billPage = billRepository.findAll(spec, pageable);
 
         if (billPage.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.OK).body("No bills found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Message.map("No bills found"));
         }
 
         List<DetailBill> allDetailBills = detailBillRepository.findByBillIdIn(
@@ -227,7 +222,9 @@ public class BillServiceImp implements BillService {
             BillResponse billResponse = BillResponse.builder()
                     .billId(bill.getBillId())
                     .sellDate(bill.getSellDate().format(formatter))
-                    .saleName(userRepository.getUserNameById(bill.getSaleId()) == null ? "" : userRepository.getUserNameById(bill.getSaleId()))
+                    .saleName(userRepository.getUserNameById(bill.getSaleId()) == null
+                            ? ""
+                            : userRepository.getUserNameById(bill.getSaleId()))
                     .notes(bill.getNotes())
                     .totalQuantity(bill.getTotalQuantity())
                     .totalPrice(bill.getTotalPrice())
@@ -340,19 +337,19 @@ public class BillServiceImp implements BillService {
             return ResponseEntity.status(HttpStatus.OK).body(revenues);
         }
     }
-    private Specification<Bill> buildSpecification( Long userId) {return (root, query, criteriaBuilder) -> {
-        Predicate predicate = criteriaBuilder.conjunction();
 
-        if (userId != null) {
+    private Specification<Bill> buildSpecification(Long userId) {
+        return (root, query, criteriaBuilder) -> {
+            Predicate predicate = criteriaBuilder.conjunction();
 
-            predicate = criteriaBuilder.and(
-                    predicate,
-                    criteriaBuilder.equal(root.get("saleId"), userId));
+            if (userId != null) {
+                predicate = criteriaBuilder.and(
+                        predicate,
+                        criteriaBuilder.equal(root.get("saleId"), userId));
+            }
 
-        }
-
-        return predicate;
-    };
+            return predicate;
+        };
     }
 
 }
